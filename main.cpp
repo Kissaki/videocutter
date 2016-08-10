@@ -6,10 +6,10 @@ int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
 
-	AppWindow m;
+	QSystemTrayIcon tray;
+	AppWindow m(&tray);
 	m.show();
 
-//	QSystemTrayIcon tray;
 //	tray.setIcon(QIcon::);
 //	tray.show();
 

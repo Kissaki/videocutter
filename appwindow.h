@@ -12,12 +12,14 @@ class QSlider;
 class QLabel;
 class QPushButton;
 class QLineEdit;
+class QProcess;
+class QSystemTrayIcon;
 
 class AppWindow : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit AppWindow(QWidget *parent = 0);
+	explicit AppWindow(QSystemTrayIcon* tray, QWidget *parent = 0);
 
 signals:
 	void currentFileChanged(QString& newFile);
@@ -37,8 +39,12 @@ private slots:
 	void on_markSetEnd_clicked();
 	void on_markingsSave_clicked();
 	void on_markingsLoad_clicked();
+	void on_outExtract_clicked();
+	void on_extractProcess_readyReadStandardError();
+	void on_extractProcess_readyReadStandardOutput();
 
 private:
+	QSystemTrayIcon* tray;
 	QString currentFile;
 	QPushButton* openFile;
 	QMediaPlayer player;
@@ -51,6 +57,7 @@ private:
 	QLabel* timeHigh;
 	QLabel* timeCurrent;
 	QLineEdit* outFfmpeg;
+	QPushButton* outExtract;
 	QLabel* markLabel;
 	QLabel* markStart;
 	QLabel* markEnd;
@@ -59,6 +66,7 @@ private:
 	QPushButton* markingsSave;
 	QPushButton* markingsLoad;
 	Markings markings;
+	QProcess* extractProcess;
 
 	void setupLayout();
 	QBoxLayout* setupLayoutTop();
@@ -66,7 +74,8 @@ private:
 	QBoxLayout* setupLayoutBottom();
 	void setupMediaPlayer();
 	void updateOut();
-	void updateOut(int startMS, int endMS, bool copy);
+	void updateOut(bool copy);
+	QString getFfmpegExtractArgs(bool copy);
 };
 
 #endif // APPWINDOW_H

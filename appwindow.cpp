@@ -10,9 +10,12 @@
 #include <QLineEdit>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QProcess>
+#include <QSystemTrayIcon>
 
-AppWindow::AppWindow(QWidget *parent)
+AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	: QWidget(parent)
+	, tray(tray)
 	, duration(new QLabel("0", this))
 	, timeLow(new QLabel("0", this))
 	, timeHigh(new QLabel("0", this))
@@ -24,6 +27,7 @@ AppWindow::AppWindow(QWidget *parent)
 	, openFile(new QPushButton("Open"))
 	, player(this)
 	, outFfmpeg(new QLineEdit(this))
+	, outExtract(new QPushButton(tr("Extract"), this))
 	, markLabel(new QLabel(tr("Marker"), this))
 	, markStart(new QLabel(this))
 	, markEnd(new QLabel(this))
@@ -31,6 +35,7 @@ AppWindow::AppWindow(QWidget *parent)
 	, markSetEnd(new QPushButton(tr("End"), this))
 	, markingsSave(new QPushButton(tr("Save Markings"), this))
 	, markingsLoad(new QPushButton(tr("Load Markings"), this))
+	, extractProcess(new QProcess(this))
 {
 	openFile->setObjectName("openFile");
 	sliderZoom->setObjectName("sliderZoom");
@@ -41,6 +46,8 @@ AppWindow::AppWindow(QWidget *parent)
 	markSetEnd->setObjectName("markSetEnd");
 	markingsSave->setObjectName("markingsSave");
 	markingsLoad->setObjectName("markingsLoad");
+	outExtract->setObjectName("outExtract");
+	extractProcess->setObjectName("extractProcess");
 
 	setupLayout();
 
@@ -48,7 +55,6 @@ AppWindow::AppWindow(QWidget *parent)
 	player.setVideoOutput(videoWidget);
 
 	QMetaObject::connectSlotsByName(this);
-//	connect(openFile, &QPushButton::clicked, this, &AppWindow::openFile_clicked);
 	connect(this, &AppWindow::currentFileChanged, this, &AppWindow::onCurrentFileChanged);
 
 	emit currentFileChanged(QString::fromLatin1("E:/work/video/capture/plays/Overwatch/2016_07_15_21_54_03-ses.mp4"));
@@ -121,7 +127,10 @@ QBoxLayout* AppWindow::setupLayoutBottom()
 	layMarkings->addStretch(1);
 	layBottom->addLayout(layMarkings);
 
-	layBottom->addWidget(outFfmpeg);
+	auto layOut = new QHBoxLayout();
+	layOut->addWidget(outFfmpeg, 1);
+	layOut->addWidget(outExtract);
+	layBottom->addLayout(layOut);
 
 	return layBottom;
 }
@@ -222,25 +231,33 @@ void AppWindow::on_sliderTime_rangeChanged(int min, int max)
 
 void AppWindow::updateOut()
 {
-	updateOut(markStart->text().toInt(), markEnd->text().toInt(), true);
+	updateOut(true);
 }
 
-void AppWindow::updateOut(int startMS, int endMS, bool copy)
+QString AppWindow::getFfmpegExtractArgs(bool copy)
 {
+	int startMS = markStart->text().toInt();
+	int endMS = markEnd->text().toInt();
 	double startS = startMS / 1000.0;
 	double endS = endMS / 1000.0;
 	QString inPath = currentFile;
-	QString outPath = inPath + "_.mp4";
+	QString outPath = inPath + "_" + QString::number(startMS) + "-" + QString::number(endMS) + ".mp4";
 	QString c = copy ? "-c copy" : "";
 	// https://ffmpeg.org/ffmpeg.html#Main-options
 	// https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax
-	QString out("ffmpeg -i \"%1\" -ss %2 -to %3 %4 \"%9\"");
+	QString out("-i \"%1\" -ss %2 -to %3 %4 \"%9\"");
 	out = out
 			.arg(inPath)
 			.arg(QString::number(startS, 'f', 3))
 			.arg(QString::number(endS, 'f', 3))
 			.arg(c)
 			.arg(outPath);
+	return out;
+}
+
+void AppWindow::updateOut(bool copy)
+{
+	QString out("ffmpeg " + getFfmpegExtractArgs(copy));
 	outFfmpeg->setText(out);
 }
 
@@ -276,6 +293,18 @@ void AppWindow::on_markSetEnd_clicked()
 	updateOut();
 }
 
+void AppWindow::on_outExtract_clicked()
+{
+	if (extractProcess->state() != QProcess::NotRunning)
+	{
+		qWarning() << "Extraction still running...";
+		return;
+	}
+	qDebug() << "Starting extraction...";
+	tray->showMessage("testtitle0", "Beginning extraction...");
+	extractProcess->start("ffmpeg", QStringList(getFfmpegExtractArgs(true)));
+}
+
 void AppWindow::on_markingsSave_clicked()
 {
 	QFile f(currentFile + ".markings.json");
@@ -295,4 +324,18 @@ void AppWindow::on_markingsLoad_clicked()
 
 	auto json = QJsonDocument::fromJson(data);
 	markings.read(json.array());
+}
+
+void AppWindow::on_extractProcess_readyReadStandardError()
+{
+	auto data = extractProcess->readAllStandardError();
+	tray->showMessage("testtitle1", data);
+	qDebug() << data << "\n";
+}
+
+void AppWindow::on_extractProcess_readyReadStandardOutput()
+{
+	auto data = extractProcess->readAllStandardError();
+	tray->showMessage("testtitle2", data);
+	qDebug() << data << "\n";
 }
