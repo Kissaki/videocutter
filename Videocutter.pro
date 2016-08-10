@@ -21,3 +21,8 @@ HEADERS  += \
     markings.h
 
 FORMS    +=
+
+DISTFILES +=
+
+RESOURCES += \
+    res.qrc
