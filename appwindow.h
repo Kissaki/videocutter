@@ -5,6 +5,7 @@
 #include <QMediaPlayer>
 #include <QVideoWidget>
 #include <QFile>
+#include <QProcess>
 #include "markings.h"
 
 class QBoxLayout;
@@ -12,8 +13,8 @@ class QSlider;
 class QLabel;
 class QPushButton;
 class QLineEdit;
-class QProcess;
 class QSystemTrayIcon;
+class QTextEdit;
 
 class AppWindow : public QWidget
 {
@@ -42,6 +43,7 @@ private slots:
 	void on_outExtract_clicked();
 	void on_extractProcess_readyReadStandardError();
 	void on_extractProcess_readyReadStandardOutput();
+	void on_extractProcess_finished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
 	QSystemTrayIcon* tray;
@@ -67,6 +69,7 @@ private:
 	QPushButton* markingsLoad;
 	Markings markings;
 	QProcess* extractProcess;
+	QTextEdit* log;
 
 	void setupLayout();
 	QBoxLayout* setupLayoutTop();

@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QProcess>
 #include <QSystemTrayIcon>
+#include <QTextEdit>
 
 AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	: QWidget(parent)
@@ -36,6 +37,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, markingsSave(new QPushButton(tr("Save Markings"), this))
 	, markingsLoad(new QPushButton(tr("Load Markings"), this))
 	, extractProcess(new QProcess(this))
+	, log(nullptr)
 {
 	openFile->setObjectName("openFile");
 	sliderZoom->setObjectName("sliderZoom");
@@ -302,7 +304,14 @@ void AppWindow::on_outExtract_clicked()
 	}
 	qDebug() << "Starting extraction...";
 	tray->showMessage("testtitle0", "Beginning extraction...");
-	extractProcess->start("ffmpeg", QStringList(getFfmpegExtractArgs(true)));
+
+	log = new QTextEdit(this);
+	auto w = new QDialog(this);
+	auto l = new QHBoxLayout(w);
+	l->addWidget(log);
+	w->setLayout(l);
+	w->show();
+	extractProcess->start("ffmpeg " + getFfmpegExtractArgs(true));
 }
 
 void AppWindow::on_markingsSave_clicked()
@@ -329,13 +338,16 @@ void AppWindow::on_markingsLoad_clicked()
 void AppWindow::on_extractProcess_readyReadStandardError()
 {
 	auto data = extractProcess->readAllStandardError();
-	tray->showMessage("testtitle1", data);
-	qDebug() << data << "\n";
+	log->append(data);
+}
+
+void AppWindow::on_extractProcess_finished(int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/)
+{
+	tray->showMessage("Extraciton finished", "The extraction process finished.");
 }
 
 void AppWindow::on_extractProcess_readyReadStandardOutput()
 {
 	auto data = extractProcess->readAllStandardError();
-	tray->showMessage("testtitle2", data);
-	qDebug() << data << "\n";
+	qWarning() << data;
 }
