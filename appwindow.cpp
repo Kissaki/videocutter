@@ -13,6 +13,7 @@
 #include <QProcess>
 #include <QSystemTrayIcon>
 #include <QTextEdit>
+#include "markingswidget.h"
 
 AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	: QWidget(parent)
@@ -29,6 +30,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, player(this)
 	, outFfmpeg(new QLineEdit(this))
 	, outExtract(new QPushButton(tr("Extract"), this))
+	, markinsWidget(new MarkingsWidget(this))
 	, markLabel(new QLabel(tr("Marker"), this))
 	, markStart(new QLabel(this))
 	, markEnd(new QLabel(this))
@@ -113,6 +115,8 @@ QBoxLayout* AppWindow::setupLayoutBottom()
 	layTime->addWidget(timeHigh, 0, Qt::AlignLeft);
 	layTime->addStretch(1);
 	layBottom->addLayout(layTime);
+
+	layBottom->addWidget(markinsWidget);
 
 	auto layMarker = new QHBoxLayout();
 	layMarker->addWidget(markLabel, 0, Qt::AlignLeft);

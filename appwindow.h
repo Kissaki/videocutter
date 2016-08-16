@@ -15,6 +15,7 @@ class QPushButton;
 class QLineEdit;
 class QSystemTrayIcon;
 class QTextEdit;
+class MarkingsWidget;
 
 class AppWindow : public QWidget
 {
@@ -60,6 +61,7 @@ private:
 	QLabel* timeCurrent;
 	QLineEdit* outFfmpeg;
 	QPushButton* outExtract;
+	MarkingsWidget* markinsWidget;
 	QLabel* markLabel;
 	QLabel* markStart;
 	QLabel* markEnd;

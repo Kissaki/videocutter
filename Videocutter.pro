@@ -14,11 +14,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     appwindow.cpp \
-    markings.cpp
+    markings.cpp \
+    markwidget.cpp \
+    markingswidget.cpp
 
 HEADERS  += \
     appwindow.h \
-    markings.h
+    markings.h \
+    markwidget.h \
+    markingswidget.h
 
 FORMS    +=
 
