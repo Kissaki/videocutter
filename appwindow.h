@@ -18,6 +18,7 @@ class QTextEdit;
 class MarkingsWidget;
 class MarkersModel;
 class ExportProcessor;
+class QDoubleSpinBox;
 
 class AppWindow : public QWidget
 {
@@ -39,6 +40,8 @@ private slots:
 	void on_player_positionChanged(qint64 p);
 	void on_sliderTime_valueChanged(int v);
 	void on_sliderTime_rangeChanged(int min, int max);
+	void on_playbackSpeed_valueChanged(double v);
+	void on_player_playbackRateChanged(qreal rate);
 
 private:
 	QSystemTrayIcon* tray;
@@ -55,6 +58,7 @@ private:
 	QLabel* timeLow;
 	QLabel* timeHigh;
 	QLabel* timeCurrent;
+	QDoubleSpinBox* playbackSpeed;
 	MarkingsWidget* markinsWidget;
 
 	void setupLayout();

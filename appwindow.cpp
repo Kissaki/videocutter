@@ -11,6 +11,7 @@
 #include <QProcess>
 #include <QSystemTrayIcon>
 #include <QTextEdit>
+#include <QDoubleSpinBox>
 #include "markingswidget.h"
 #include "markersmodel.h"
 #include "exportprocessor.h"
@@ -25,6 +26,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, sliderZoom(new QSlider(Qt::Horizontal, this))
 	, sliderZoomRHS(new QSlider(Qt::Horizontal, this))
 	, sliderTime(new QSlider(Qt::Horizontal, this))
+	, playbackSpeed(new QDoubleSpinBox(this))
 	, videoWidget(new QVideoWidget(this))
 	, openFile(new QPushButton("Open"))
 	, player(this)
@@ -35,11 +37,16 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	sliderZoomRHS->setObjectName("sliderZoomRHS");
 	sliderTime->setObjectName("sliderTime");
 	player.setObjectName("player");
+	playbackSpeed->setObjectName("playbackSpeed");
 
 	setupLayout();
 
 	setupMediaPlayer();
 	player.setVideoOutput(videoWidget);
+	playbackSpeed->setSingleStep(0.5);
+	// With higher values than 4.0 QMediaPlayer simply sets it to 1.0 instead. https://bugreports.qt.io/browse/QTBUG-55354
+	// According to documentation of QMediaPlayer, negative values should work, but do not. In case that's format or system specific, allow negative numbers for now.
+	playbackSpeed->setRange(-4.0, 4.0);
 
 	QMetaObject::connectSlotsByName(this);
 	connect(this, &AppWindow::currentFileChanged, this, &AppWindow::onCurrentFileChanged);
@@ -92,12 +99,23 @@ QBoxLayout* AppWindow::setupLayoutBottom()
 	layBottom->addWidget(sliderZoomRHS);
 	layBottom->addWidget(sliderTime);
 
+	auto layTimeControls = new QHBoxLayout();
 	auto layTime = new QHBoxLayout();
 	layTime->addWidget(timeLow, 0, Qt::AlignLeft);
 	layTime->addWidget(timeCurrent, 0, Qt::AlignLeft);
 	layTime->addWidget(timeHigh, 0, Qt::AlignLeft);
 	layTime->addStretch(1);
-	layBottom->addLayout(layTime);
+	auto gbTime = new QGroupBox("time", this);
+	gbTime->setLayout(layTime);
+	layTimeControls->addWidget(gbTime);
+	auto gbControls = new QGroupBox("controls", this);
+	auto layControls = new QHBoxLayout();
+	layControls->addWidget(new QLabel(tr("Playback Rate"), gbControls));
+	layControls->addWidget(playbackSpeed);
+	gbControls->setLayout(layControls);
+	layTimeControls->addWidget(gbControls);
+	layTimeControls->addStretch();
+	layBottom->addLayout(layTimeControls);
 
 	layBottom->addWidget(markinsWidget);
 
@@ -198,4 +216,14 @@ void AppWindow::on_sliderTime_rangeChanged(int min, int max)
 	}
 	timeLow->setText(QString::number(min));
 	timeHigh->setText(QString::number(max));
+}
+
+void AppWindow::on_playbackSpeed_valueChanged(double v)
+{
+	player.setPlaybackRate(v);
+}
+
+void AppWindow::on_player_playbackRateChanged(qreal rate)
+{
+	playbackSpeed->setValue(rate);
 }
