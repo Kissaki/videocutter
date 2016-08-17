@@ -64,10 +64,11 @@ void ExportProcessor::on_extractProcess_readyReadStandardError()
 	emit log(data);
 }
 
-void ExportProcessor::on_extractProcess_finished(int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/)
+void ExportProcessor::on_extractProcess_finished(int exitCode, QProcess::ExitStatus exitStatus)
 {
 	//TODO
 //	tray->showMessage("Extraciton finished", "The extraction process finished.");
+	qDebug() << "Extraction finished" << exitCode << exitStatus;
 }
 
 void ExportProcessor::on_extractProcess_readyReadStandardOutput()
