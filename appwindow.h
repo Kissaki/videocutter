@@ -16,6 +16,8 @@ class QLineEdit;
 class QSystemTrayIcon;
 class QTextEdit;
 class MarkingsWidget;
+class MarkersModel;
+class ExportProcessor;
 
 class AppWindow : public QWidget
 {
@@ -37,50 +39,29 @@ private slots:
 	void on_player_positionChanged(qint64 p);
 	void on_sliderTime_valueChanged(int v);
 	void on_sliderTime_rangeChanged(int min, int max);
-	void on_markSetStart_clicked();
-	void on_markSetEnd_clicked();
-	void on_markingsSave_clicked();
-	void on_markingsLoad_clicked();
-	void on_outExtract_clicked();
-	void on_extractProcess_readyReadStandardError();
-	void on_extractProcess_readyReadStandardOutput();
-	void on_extractProcess_finished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
 	QSystemTrayIcon* tray;
+
 	QString currentFile;
-	QPushButton* openFile;
 	QMediaPlayer player;
+
 	QVideoWidget* videoWidget;
 	QSlider* sliderZoom;
 	QSlider* sliderZoomRHS;
 	QSlider* sliderTime;
+	QPushButton* openFile;
 	QLabel* duration;
 	QLabel* timeLow;
 	QLabel* timeHigh;
 	QLabel* timeCurrent;
-	QLineEdit* outFfmpeg;
-	QPushButton* outExtract;
 	MarkingsWidget* markinsWidget;
-	QLabel* markLabel;
-	QLabel* markStart;
-	QLabel* markEnd;
-	QPushButton* markSetStart;
-	QPushButton* markSetEnd;
-	QPushButton* markingsSave;
-	QPushButton* markingsLoad;
-	Markings markings;
-	QProcess* extractProcess;
-	QTextEdit* log;
 
 	void setupLayout();
 	QBoxLayout* setupLayoutTop();
 	QBoxLayout* setupLayoutFileInfo();
 	QBoxLayout* setupLayoutBottom();
 	void setupMediaPlayer();
-	void updateOut();
-	void updateOut(bool copy);
-	QString getFfmpegExtractArgs(bool copy);
 };
 
 #endif // APPWINDOW_H

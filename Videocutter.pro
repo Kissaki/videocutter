@@ -16,13 +16,20 @@ SOURCES += main.cpp\
     appwindow.cpp \
     markings.cpp \
     markwidget.cpp \
-    markingswidget.cpp
+    markingswidget.cpp \
+    markersmodel.cpp \
+    markdelegate.cpp \
+    exportprocessor.cpp
 
 HEADERS  += \
     appwindow.h \
     markings.h \
     markwidget.h \
-    markingswidget.h
+    markingswidget.h \
+    markersmodel.h \
+    markdelegate.h \
+    markcolumns.h \
+    exportprocessor.h
 
 FORMS    +=
 

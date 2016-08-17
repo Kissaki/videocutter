@@ -1,0 +1,15 @@
+#ifndef MARKCOLUMNS_H
+#define MARKCOLUMNS_H
+
+enum COLS
+{
+	START = 0,
+	END,
+	SET_START,
+	SET_END,
+	REMOVE_MARK,
+	EXPORT,
+	COLCOUNT
+};
+
+#endif // MARKCOLUMNS_H
