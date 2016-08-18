@@ -1,17 +1,18 @@
 #include "appwindow.h"
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QVideoWidget>
-#include <QSlider>
-#include <QMediaPlayer>
-#include <QMediaPlaylist>
+#include <QDoubleSpinBox>
 #include <QFileDialog>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 #include <QProcess>
+#include <QPushButton>
+#include <QSlider>
+#include <QSpinBox>
 #include <QSystemTrayIcon>
 #include <QTextEdit>
-#include <QDoubleSpinBox>
+#include <QVideoWidget>
 #include "markingswidget.h"
 #include "markersmodel.h"
 #include "exportprocessor.h"
@@ -27,6 +28,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, sliderZoomRHS(new QSlider(Qt::Horizontal, this))
 	, sliderTime(new QSlider(Qt::Horizontal, this))
 	, playbackSpeed(new QDoubleSpinBox(this))
+	, uiNotifyRate(new QSpinBox(this))
 	, playerVolume(new QSlider(Qt::Horizontal, this))
 	, playerPlayPause(new QPushButton("⏯", this))
 	, videoWidget(new QVideoWidget(this))
@@ -40,6 +42,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	sliderTime->setObjectName("sliderTime");
 	player.setObjectName("player");
 	playbackSpeed->setObjectName("playbackSpeed");
+	uiNotifyRate->setObjectName("uiNotifyRate");
 	playerVolume->setObjectName("playerVolume");
 	playerPlayPause->setObjectName("playerPlayPause");
 
@@ -54,10 +57,14 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	playbackSpeed->setValue(player.playbackRate());
 	playerVolume->setRange(0, 100);
 	playerVolume->setValue(player.volume());
+	uiNotifyRate->setRange(100, 1000);
+	uiNotifyRate->setSingleStep(100);
+	uiNotifyRate->setValue(1000);
 
 	QMetaObject::connectSlotsByName(this);
 	connect(this, &AppWindow::currentFileChanged, this, &AppWindow::onCurrentFileChanged);
 	connect(markinsWidget, &MarkingsWidget::playRange, this, &AppWindow::onPlayRange);
+	connect(&player, &QMediaPlayer::stateChanged, this, &AppWindow::updateTimeLabels);
 }
 
 void AppWindow::onPlayRange(int timeStartMS, int timeEndMS)
@@ -134,6 +141,8 @@ QBoxLayout* AppWindow::setupLayoutBottom()
 	layControls->addWidget(new QLabel(tr("Volume"), gbControls));
 	playerVolume->setMaximumWidth(60);
 	layControls->addWidget(playerVolume);
+	layControls->addWidget(new QLabel(tr("UI Updaterate [ms]"), gbControls));
+	layControls->addWidget(uiNotifyRate);
 	gbControls->setLayout(layControls);
 	layTimeControls->addWidget(gbControls);
 	layTimeControls->addStretch();
@@ -149,7 +158,6 @@ void AppWindow::setupMediaPlayer()
 	auto playlist = new QMediaPlaylist(&player);
 	playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
 	player.setPlaylist(playlist);
-	player.setNotifyInterval(100);
 }
 
 void AppWindow::on_openFile_clicked()
@@ -218,6 +226,12 @@ void AppWindow::on_player_positionChanged(qint64 position)
 	}
 }
 
+void AppWindow::updateTimeLabels()
+{
+	markinsWidget->setCurrentPosition(player.position());
+	timeCurrent->setText(QString::number(player.position()));
+}
+
 // Use cases:
 // * tracking/user seeking
 // * player playback (incremental)
@@ -253,6 +267,11 @@ void AppWindow::on_player_playbackRateChanged(qreal rate)
 	playbackSpeed->setValue(rate);
 }
 
+void AppWindow::on_player_notifyIntervalChanged(int ms)
+{
+	uiNotifyRate->setValue(ms);
+}
+
 void AppWindow::on_playerVolume_valueChanged(int v)
 {
 	player.setVolume(v);
@@ -268,4 +287,9 @@ void AppWindow::on_playerPlayPause_clicked()
 	{
 		player.play();
 	}
+}
+
+void AppWindow::on_uiNotifyRate_valueChanged(int v)
+{
+	player.setNotifyInterval(v);
 }
