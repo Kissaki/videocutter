@@ -34,27 +34,91 @@ void ExportProcessor::exportMark(QString inPath, const Mark& mark, bool copy)
 	w->setLayout(l);
 	w->show();
 
-	extractProcess->start("ffmpeg " + getFfmpegExtractArgs(mark, inPath, copy));
+	auto cmd = "ffmpeg " + getFfmpegExtractArgs(mark, inPath, copy);
+	logWidget->append(cmd);
+	extractProcess->start(cmd);
+}
+
+void ExportProcessor::exportConcat(QString inPath, const std::vector<Mark> marks)
+{
+	if (extractProcess->state() != QProcess::NotRunning)
+	{
+		qWarning() << "Extraction still running...";
+		return;
+	}
+	qDebug() << "Starting extraction...";
+//	tray->showMessage("testtitle0", "Beginning extraction...");
+
+	auto w = new QDialog();
+	logWidget = new QTextEdit(w);
+	auto l = new QHBoxLayout(w);
+	l->addWidget(logWidget);
+	w->setLayout(l);
+	w->show();
+
+	auto cmd = "ffmpeg " + getFfmpegConcatArgs(marks, inPath);
+	logWidget->append(cmd);
+	extractProcess->start(cmd);
+}
+
+// https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax
+QString ExportProcessor::getCmdTimeArgs(const Mark& mark)
+{
+	int startMS = mark.start;
+	int endMS = mark.end;
+	int durationMS = endMS - startMS;
+	double startS = startMS / 1000.0;
+	double durationS = durationMS / 1000.0;
+	return QString("-ss %1 -t %2")
+			.arg(QString::number(startS, 'f', 3))
+			.arg(QString::number(durationS, 'f', 3))
+			;
+}
+
+QString ExportProcessor::getCmdInArgs(QString inPath, const Mark& mark)
+{
+	return QString("%1 -i \"%2\"")
+			.arg(getCmdTimeArgs(mark))
+			.arg(inPath)
+			;
+}
+
+QString ExportProcessor::getCmdInArgs(QString inPath, const std::vector<Mark> marks)
+{
+	QString out;
+	for (auto mark : marks)
+	{
+		out += getCmdInArgs(inPath, mark) + " ";
+	}
+	return out;
 }
 
 QString ExportProcessor::getFfmpegExtractArgs(const Mark& mark, QString inPath, bool copy)
 {
-	int startMS = mark.start;
-	int endMS = mark.end;
-	double startS = startMS / 1000.0;
-	double endS = endMS / 1000.0;
-	QString outPath = inPath + "_" + QString::number(startMS) + "-" + QString::number(endMS) + ".mp4";
+	QString outPath = inPath + "_" + QString::number(mark.start) + "-" + QString::number(mark.end) + ".mp4";
 	QString c = copy ? "-c copy" : "";
 	// https://ffmpeg.org/ffmpeg.html#Main-options
-	// https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax
-	QString out("-i \"%1\" -ss %2 -to %3 %4 \"%9\"");
-	out = out
-			.arg(inPath)
-			.arg(QString::number(startS, 'f', 3))
-			.arg(QString::number(endS, 'f', 3))
+	return QString("%1 %4 \"%9\"")
+			.arg(getCmdInArgs(inPath, mark))
 			.arg(c)
-			.arg(outPath);
-	return out;
+			.arg(outPath)
+			;
+}
+
+QString ExportProcessor::getFfmpegConcatArgs(const std::vector<Mark>& marks, QString inPath)
+{
+	auto quality = QString("-level:v 4.2 -b:v 52M");
+	auto filter = QString("-filter_complex concat=n=%2:a=1")
+			.arg(QString::number(marks.size()));
+	auto options = QString("%1 %2").arg(filter)
+			.arg(quality);
+	QString outPath = inPath + "_concat-" + QString::number(marks.size()) + ".mp4";
+	// https://ffmpeg.org/ffmpeg.html#Main-options
+	return QString("%1 %2 \"%9\"")
+			.arg(getCmdInArgs(inPath, marks))
+			.arg(options)
+			.arg(outPath)
+			;
 }
 
 void ExportProcessor::on_extractProcess_readyReadStandardError()

@@ -1,5 +1,6 @@
 #include "markingswidget.h"
 
+#include <vector>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -17,7 +18,8 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	, add(new QPushButton(tr("Add"), this))
 	, save(new QPushButton(tr("Save"), this))
 	, load(new QPushButton(tr("Load"), this))
-	, copy(new QCheckBox(tr("copy"), this))
+	, concat(new QPushButton(tr("Concat"), this))
+	, copy(new QCheckBox(tr("Copy"), this))
 	, outFfmpeg(new QLineEdit(this))
 	, markersModel(new MarkersModel(expProc, this))
 	, markDelegate(new MarkDelegate(this))
@@ -26,11 +28,12 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	save->setObjectName("save");
 	load->setObjectName("load");
 	copy->setObjectName("copy");
+	concat->setObjectName("concat");
 	markersModel->setObjectName("markersModel");
 
 	view->setModel(markersModel);
 	view->setItemDelegate(markDelegate);
-	copy->setToolTip(tr("Lossless but unprecise copying of video data"));
+	copy->setToolTip(tr("Lossless copying of video data but with unprecisely cut beginning"));
 
 	auto l = new QVBoxLayout(this);
 
@@ -40,12 +43,14 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	layActions->addWidget(load);
 	layActions->addWidget(copy);
 	layActions->addWidget(outFfmpeg, 1);
+	layActions->addWidget(concat);
 
 	l->addWidget(view);
 	l->addLayout(layActions);
 
 	QMetaObject::connectSlotsByName(this);
 	connect(view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MarkingsWidget::onSelectionChanged);
+	connect(markDelegate, &MarkDelegate::playClicked, this, &MarkingsWidget::onMarkPlayClicked);
 }
 
 void MarkingsWidget::setFile(QString file)
@@ -79,13 +84,23 @@ void MarkingsWidget::on_load_clicked()
 	markersModel->load();
 }
 
+void MarkingsWidget::on_concat_clicked()
+{
+	markersModel->exportConcat();
+}
+
 void MarkingsWidget::on_copy_stateChanged(int state)
 {
 	markersModel->setCopy(state == Qt::Checked);
 }
 
-void MarkingsWidget::onSelectionChanged(const QModelIndex &current, const QModelIndex &previous)
+void MarkingsWidget::onSelectionChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
 	auto copyC = copy->checkState() == Qt::Checked;
 	outFfmpeg->setText(markersModel->getFfmpegCmd(current.row(), copyC));
+}
+
+void MarkingsWidget::onMarkPlayClicked(int row)
+{
+	emit playFrom(markersModel->getMark(row).start);
 }

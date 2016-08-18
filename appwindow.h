@@ -42,6 +42,9 @@ private slots:
 	void on_sliderTime_rangeChanged(int min, int max);
 	void on_playbackSpeed_valueChanged(double v);
 	void on_player_playbackRateChanged(qreal rate);
+	void on_playerVolume_valueChanged(int v);
+	void on_playerPlayPause_clicked();
+	void onPlayMark(int timeMS);
 
 private:
 	QSystemTrayIcon* tray;
@@ -59,6 +62,8 @@ private:
 	QLabel* timeHigh;
 	QLabel* timeCurrent;
 	QDoubleSpinBox* playbackSpeed;
+	QSlider* playerVolume;
+	QPushButton* playerPlayPause;
 	MarkingsWidget* markinsWidget;
 
 	void setupLayout();

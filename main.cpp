@@ -14,8 +14,5 @@ int main(int argc, char *argv[])
 	AppWindow m(&tray);
 	m.show();
 
-//	tray.setIcon(QIcon::);
-//	tray.show();
-
 	return a.exec();
 }

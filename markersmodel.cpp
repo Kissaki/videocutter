@@ -65,6 +65,20 @@ void MarkersModel::exportMark(int rowIndex)
 	exportProcessor->exportMark(currentFile, m.at(rowIndex), copyData);
 }
 
+void MarkersModel::exportConcat()
+{
+	auto c = rowCount();
+	std::vector<Mark> marks;
+	marks.reserve(c);
+	for (auto i = 0; i < c; ++i)
+	{
+		auto mark = m.at(i);
+		marks.push_back(mark);
+	}
+	qDebug() << QString::number(marks.size());
+	exportProcessor->exportConcat(currentFile, marks);
+}
+
 void MarkersModel::setCopy(bool copy)
 {
 	copyData = copy;
@@ -176,12 +190,14 @@ Qt::ItemFlags MarkersModel::flags(const QModelIndex &index) const
 {
 	switch (index.column())
 	{
-	case 0:
-	case 1:
+	case COLS::START:
+	case COLS::END:
 		return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
-	case 2:
-	case 3:
-	case 4:
+	case COLS::SET_START:
+	case COLS::SET_END:
+	case COLS::REMOVE_MARK:
+	case COLS::EXPORT:
+	case COLS::PLAY:
 		return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled;
 	}
 	return Qt::NoItemFlags;

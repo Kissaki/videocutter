@@ -9,6 +9,7 @@ enum COLS
 	SET_END,
 	REMOVE_MARK,
 	EXPORT,
+	PLAY,
 	COLCOUNT
 };
 

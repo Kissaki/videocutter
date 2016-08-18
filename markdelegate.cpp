@@ -1,6 +1,7 @@
 #include "markdelegate.h"
 
 #include <QApplication>
+#include <QDebug>
 #include "markcolumns.h"
 #include "exportprocessor.h"
 #include "markersmodel.h"
@@ -28,6 +29,12 @@ void MarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 			break;
 		case COLS::EXPORT:
 			buttonText = tr("Export");
+			break;
+		case COLS::PLAY:
+			buttonText = tr("Play");
+			break;
+		default:
+			qWarning() << "Unhandled MarkDelegate::paint for column" << index.column();
 			break;
 		}
 
@@ -64,6 +71,12 @@ bool MarkDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const Q
 		if (index.column() == COLS::EXPORT)
 		{
 			dynamic_cast<MarkersModel*>(model)->exportMark(index.row());
+			return true;
+		}
+		if (index.column() == COLS::PLAY)
+		{
+			emit playClicked(index.row());
+			return true;
 		}
 	}
 

@@ -25,6 +25,7 @@ public:
 	void setCurrentPosition(qint64 pos);
 
 signals:
+	void playFrom(int timeMS);
 
 public slots:
 
@@ -32,8 +33,10 @@ private slots:
 	void on_add_clicked();
 	void on_save_clicked();
 	void on_load_clicked();
+	void on_concat_clicked();
 	void on_copy_stateChanged(int state);
 	void onSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
+	void onMarkPlayClicked(int row);
 
 private:
 	MarkersModel* markersModel;
@@ -43,6 +46,7 @@ private:
 	QPushButton* add;
 	QPushButton* save;
 	QPushButton* load;
+	QPushButton* concat;
 	// losless but unprecise copy of video data?
 	QCheckBox* copy;
 	QLineEdit* outFfmpeg;
