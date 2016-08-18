@@ -57,12 +57,15 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 
 	QMetaObject::connectSlotsByName(this);
 	connect(this, &AppWindow::currentFileChanged, this, &AppWindow::onCurrentFileChanged);
-	connect(markinsWidget, &MarkingsWidget::playFrom, this, &AppWindow::onPlayMark);
+	connect(markinsWidget, &MarkingsWidget::playRange, this, &AppWindow::onPlayRange);
 }
 
-void AppWindow::onPlayMark(int timeMS)
+void AppWindow::onPlayRange(int timeStartMS, int timeEndMS)
 {
-	player.setPosition(timeMS);
+	player.pause();
+	sliderZoom->setValue(timeStartMS);
+	sliderZoomRHS->setValue(timeEndMS);
+	player.setPosition(timeStartMS);
 	player.play();
 }
 
@@ -144,7 +147,9 @@ QBoxLayout* AppWindow::setupLayoutBottom()
 void AppWindow::setupMediaPlayer()
 {
 	auto playlist = new QMediaPlaylist(&player);
+	playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
 	player.setPlaylist(playlist);
+	player.setNotifyInterval(100);
 }
 
 void AppWindow::on_openFile_clicked()
@@ -200,16 +205,17 @@ void AppWindow::on_player_durationChanged(qint64 d)
 
 void AppWindow::on_player_positionChanged(qint64 position)
 {
-//	if (position >= sliderTime->maximum() && player.state() == QMediaPlayer::PlayingState)
-//	{
-//		player.pause();
-//	}
 	if (!sliderTime->isSliderDown())
 	{
 		sliderTime->setValue(position);
 	}
 	markinsWidget->setCurrentPosition(position);
 	timeCurrent->setText(QString::number(position));
+
+	if (sliderZoomRHS->value() > 0 && position >= sliderZoomRHS->value() && player.state() == QMediaPlayer::PlayingState)
+	{
+		player.setPosition(sliderZoom->value());
+	}
 }
 
 // Use cases:

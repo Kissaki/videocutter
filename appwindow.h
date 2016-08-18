@@ -44,7 +44,7 @@ private slots:
 	void on_player_playbackRateChanged(qreal rate);
 	void on_playerVolume_valueChanged(int v);
 	void on_playerPlayPause_clicked();
-	void onPlayMark(int timeMS);
+	void onPlayRange(int timeStartMS, int timeEndMS);
 
 private:
 	QSystemTrayIcon* tray;

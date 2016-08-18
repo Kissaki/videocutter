@@ -25,7 +25,7 @@ public:
 	void setCurrentPosition(qint64 pos);
 
 signals:
-	void playFrom(int timeMS);
+	void playRange(int timeStartMS, int timeEndMS);
 
 public slots:
 

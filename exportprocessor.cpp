@@ -34,7 +34,7 @@ void ExportProcessor::exportMark(QString inPath, const Mark& mark, bool copy)
 	w->setLayout(l);
 	w->show();
 
-	auto cmd = "ffmpeg " + getFfmpegExtractArgs(mark, inPath, copy);
+	auto cmd = "ffmpeg -y " + getFfmpegExtractArgs(mark, inPath, copy);
 	logWidget->append(cmd);
 	extractProcess->start(cmd);
 }
@@ -56,7 +56,7 @@ void ExportProcessor::exportConcat(QString inPath, const std::vector<Mark> marks
 	w->setLayout(l);
 	w->show();
 
-	auto cmd = "ffmpeg " + getFfmpegConcatArgs(marks, inPath);
+	auto cmd = "ffmpeg -y " + getFfmpegConcatArgs(marks, inPath);
 	logWidget->append(cmd);
 	extractProcess->start(cmd);
 }
@@ -107,7 +107,8 @@ QString ExportProcessor::getFfmpegExtractArgs(const Mark& mark, QString inPath, 
 
 QString ExportProcessor::getFfmpegConcatArgs(const std::vector<Mark>& marks, QString inPath)
 {
-	auto quality = QString("-level:v 4.2 -b:v 52M");
+	//TODO: Make quality configurable
+	auto quality = QString("-level:v 4.2 -b:v 50M");
 	auto filter = QString("-filter_complex concat=n=%2:a=1")
 			.arg(QString::number(marks.size()));
 	auto options = QString("%1 %2").arg(filter)
