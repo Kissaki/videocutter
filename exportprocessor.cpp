@@ -110,6 +110,7 @@ QString ExportProcessor::getFfmpegConcatArgs(const std::vector<Mark>& marks, QSt
 	//TODO: Make quality configurable
 	auto quality = QString("-level:v 4.2 -b:v 50M");
 //	auto quality = QString("-c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p");
+//	auto quality = QString("-c:v libvpx -b 50M");
 	auto filter = QString("-filter_complex concat=n=%2:a=1")
 			.arg(QString::number(marks.size()));
 	auto options = QString("%1 %2").arg(filter)
