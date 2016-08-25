@@ -76,6 +76,9 @@ private:
 	QBoxLayout* setupLayoutFileInfo();
 	QBoxLayout* setupLayoutBottom();
 	void setupMediaPlayer();
+
+	void dragEnterEvent(QDragEnterEvent *event) override;
+	void dropEvent(QDropEvent *event) override;
 };
 
 #endif // APPWINDOW_H

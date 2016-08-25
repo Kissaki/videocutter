@@ -13,6 +13,9 @@
 #include <QSystemTrayIcon>
 #include <QTextEdit>
 #include <QVideoWidget>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 #include "markingswidget.h"
 #include "markersmodel.h"
 #include "exportprocessor.h"
@@ -60,6 +63,8 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	uiNotifyRate->setRange(100, 1000);
 	uiNotifyRate->setSingleStep(100);
 	uiNotifyRate->setValue(1000);
+
+	setAcceptDrops(true);
 
 	QMetaObject::connectSlotsByName(this);
 	connect(this, &AppWindow::currentFileChanged, this, &AppWindow::onCurrentFileChanged);
@@ -175,6 +180,7 @@ void AppWindow::on_openFile_clicked()
 
 void AppWindow::onCurrentFileChanged(QString& newFile)
 {
+	qDebug() << "opening file" << newFile;
 	currentFile = newFile;
 	markinsWidget->setFile(currentFile);
 	player.playlist()->clear();
@@ -292,4 +298,30 @@ void AppWindow::on_playerPlayPause_clicked()
 void AppWindow::on_uiNotifyRate_valueChanged(int v)
 {
 	player.setNotifyInterval(v);
+}
+
+void AppWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+	if (event->mimeData()->hasUrls()
+//FIXME: Only accept video/audio formats
+//			&& (event->mimeData()->hasFormat("video/*") || event->mimeData()->hasFormat("audio/*"))
+			)
+	{
+		event->accept();
+	}
+}
+
+void AppWindow::dropEvent(QDropEvent *event)
+{
+	auto urls = event->mimeData()->urls();
+	if (urls.size() > 1)
+	{
+		qDebug() << "Multiple URLs passed; only opening the first one. Passed:" << urls.size();
+		return;
+	}
+	auto p = urls.first().toLocalFile();
+	if (QFile::exists(p))
+	{
+		emit currentFileChanged(p);
+	}
 }
