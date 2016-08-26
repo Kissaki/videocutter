@@ -34,6 +34,7 @@ public slots:
 
 private slots:
 	void on_openFile_clicked();
+	void on_timeCurrent_textEdited(const QString &text);
 	void onCurrentFileChanged(QString& newFile);
 	void on_sliderZoom_valueChanged(int v);
 	void on_sliderZoomRHS_valueChanged(int v);
@@ -64,7 +65,7 @@ private:
 	QLabel* duration;
 	QLabel* timeLow;
 	QLabel* timeHigh;
-	QLabel* timeCurrent;
+	QLineEdit* timeCurrent;
 	QDoubleSpinBox* playbackSpeed;
 	QSpinBox* uiNotifyRate;
 	QSlider* playerVolume;

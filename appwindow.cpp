@@ -26,7 +26,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, duration(new QLabel("0", this))
 	, timeLow(new QLabel("0", this))
 	, timeHigh(new QLabel("0", this))
-	, timeCurrent(new QLabel("0", this))
+	, timeCurrent(new QLineEdit("0", this))
 	, sliderZoom(new QSlider(Qt::Horizontal, this))
 	, sliderZoomRHS(new QSlider(Qt::Horizontal, this))
 	, sliderTime(new QSlider(Qt::Horizontal, this))
@@ -40,6 +40,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, markinsWidget(new MarkingsWidget(new ExportProcessor(this), this))
 {
 	openFile->setObjectName("openFile");
+	timeCurrent->setObjectName("timeCurrent");
 	sliderZoom->setObjectName("sliderZoom");
 	sliderZoomRHS->setObjectName("sliderZoomRHS");
 	sliderTime->setObjectName("sliderTime");
@@ -63,6 +64,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	uiNotifyRate->setRange(100, 1000);
 	uiNotifyRate->setSingleStep(100);
 	uiNotifyRate->setValue(1000);
+	timeCurrent->setValidator(new QIntValidator(timeCurrent));
 
 	setAcceptDrops(true);
 
@@ -236,6 +238,16 @@ void AppWindow::updateTimeLabels()
 {
 	markinsWidget->setCurrentPosition(player.position());
 	timeCurrent->setText(QString::number(player.position()));
+}
+
+void AppWindow::on_timeCurrent_textEdited(const QString &text)
+{
+	bool ok;
+	auto v = text.toInt(&ok);
+	if (ok)
+	{
+		player.setPosition(v);
+	}
 }
 
 // Use cases:
