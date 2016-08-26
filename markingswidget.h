@@ -31,6 +31,7 @@ public slots:
 
 private slots:
 	void on_add_clicked();
+	void on_add5s_clicked();
 	void on_save_clicked();
 	void on_load_clicked();
 	void on_concat_clicked();
@@ -41,9 +42,11 @@ private slots:
 private:
 	MarkersModel* markersModel;
 	MarkDelegate* markDelegate;
+	qint64 currentPosition;
 
 	QTableView* view;
 	QPushButton* add;
+	QPushButton* add5s;
 	QPushButton* save;
 	QPushButton* load;
 	QPushButton* concat;

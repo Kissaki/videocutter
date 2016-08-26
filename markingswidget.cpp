@@ -1,5 +1,6 @@
 #include "markingswidget.h"
 
+#include <QtGlobal>
 #include <vector>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -16,6 +17,7 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	: QGroupBox(tr("Markings"), parent)
 	, view(new QTableView)
 	, add(new QPushButton(tr("Add"), this))
+	, add5s(new QPushButton(tr("Add [5s]"), this))
 	, save(new QPushButton(tr("Save"), this))
 	, load(new QPushButton(tr("Load"), this))
 	, concat(new QPushButton(tr("Concat"), this))
@@ -23,8 +25,10 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	, outFfmpeg(new QLineEdit(this))
 	, markersModel(new MarkersModel(expProc, this))
 	, markDelegate(new MarkDelegate(this))
+	, currentPosition(0)
 {
 	add->setObjectName("add");
+	add5s->setObjectName("add5s");
 	save->setObjectName("save");
 	load->setObjectName("load");
 	copy->setObjectName("copy");
@@ -39,6 +43,7 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 
 	auto layActions = new QHBoxLayout;
 	layActions->addWidget(add);
+	layActions->addWidget(add5s);
 	layActions->addWidget(save);
 	layActions->addWidget(load);
 	layActions->addWidget(copy);
@@ -66,12 +71,21 @@ Mark MarkingsWidget::getSelectedMark() const
 
 void MarkingsWidget::setCurrentPosition(qint64 pos)
 {
+	currentPosition = pos;
 	markDelegate->setCurrentPosition(pos);
 }
 
 void MarkingsWidget::on_add_clicked()
 {
 	markersModel->insertRow(markersModel->rowCount());
+}
+
+void MarkingsWidget::on_add5s_clicked()
+{
+	auto row = markersModel->rowCount();
+	markersModel->insertRow(row);
+	markersModel->setData(markersModel->index(row, 0), qMax(qint64(0), currentPosition - 5000), Qt::EditRole);
+	markersModel->setData(markersModel->index(row, 1), currentPosition, Qt::EditRole);
 }
 
 void MarkingsWidget::on_save_clicked()
