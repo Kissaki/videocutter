@@ -12,6 +12,7 @@
 #include "markersmodel.h"
 #include "markdelegate.h"
 #include "exportprocessor.h"
+#include "markcolumns.h"
 
 MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	: QGroupBox(tr("Markings"), parent)
@@ -76,10 +77,12 @@ void MarkingsWidget::on_add_clicked()
 
 void MarkingsWidget::on_add5s_clicked()
 {
+	static const auto markTimespanMS = 5000;
 	auto row = markersModel->rowCount();
 	markersModel->insertRow(row);
-	markersModel->setData(markersModel->index(row, 0), qMax(qint64(0), currentPosition - 5000), Qt::EditRole);
-	markersModel->setData(markersModel->index(row, 1), currentPosition, Qt::EditRole);
+	markersModel->setData(markersModel->index(row, COLS::START), qMax(qint64(0), currentPosition - markTimespanMS), Qt::EditRole);
+	markersModel->setData(markersModel->index(row, COLS::END), currentPosition, Qt::EditRole);
+	view->scrollToBottom();
 }
 
 void MarkingsWidget::on_save_clicked()
