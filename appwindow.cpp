@@ -129,8 +129,10 @@ QBoxLayout* AppWindow::setupLayoutFileInfo()
 QBoxLayout* AppWindow::setupLayoutBottom()
 {
 	auto layBottom = new QVBoxLayout();
-	layBottom->addWidget(sliderZoom);
-	layBottom->addWidget(sliderZoomRHS);
+	auto layTimeRange = new QHBoxLayout();
+	layTimeRange->addWidget(sliderZoom);
+	layTimeRange->addWidget(sliderZoomRHS);
+	layBottom->addLayout(layTimeRange);
 	layBottom->addWidget(sliderTime);
 
 	auto layTimeControls = new QHBoxLayout();
