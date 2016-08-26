@@ -93,28 +93,32 @@ QString ExportProcessor::getCmdInArgs(QString inPath, const std::vector<Mark> ma
 	return out;
 }
 
+QString ExportProcessor::getQualityParameters()
+{
+	//TODO: Make quality configurable
+	return QString("-level:v 4.2 -b:v 50M");
+//	return QString("-c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p");
+//	return QString("-c:v libvpx -b 50M");
+}
+
 QString ExportProcessor::getFfmpegExtractArgs(const Mark& mark, QString inPath, bool copy)
 {
 	QString outPath = inPath + "_" + QString::number(mark.start) + "-" + QString::number(mark.end) + ".mp4";
-	QString c = copy ? "-c copy" : "";
+	auto quality = copy ? "-c copy" : getQualityParameters();
 	// https://ffmpeg.org/ffmpeg.html#Main-options
 	return QString("%1 %4 \"%9\"")
 			.arg(getCmdInArgs(inPath, mark))
-			.arg(c)
+			.arg(quality)
 			.arg(outPath)
 			;
 }
 
 QString ExportProcessor::getFfmpegConcatArgs(const std::vector<Mark>& marks, QString inPath)
 {
-	//TODO: Make quality configurable
-	auto quality = QString("-level:v 4.2 -b:v 50M");
-//	auto quality = QString("-c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p");
-//	auto quality = QString("-c:v libvpx -b 50M");
 	auto filter = QString("-filter_complex concat=n=%2:a=1")
 			.arg(QString::number(marks.size()));
 	auto options = QString("%1 %2").arg(filter)
-			.arg(quality);
+			.arg(getQualityParameters());
 	QString outPath = inPath + "_concat-" + QString::number(marks.size()) + ".mp4";
 	// https://ffmpeg.org/ffmpeg.html#Main-options
 	return QString("%1 %2 \"%9\"")

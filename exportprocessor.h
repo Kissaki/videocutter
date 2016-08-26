@@ -35,6 +35,7 @@ private:
 	ExportProcessor* exportProcessor;
 	QTextEdit* logWidget;
 
+	static QString getQualityParameters();
 	static QString getCmdTimeArgs(const Mark& mark);
 	static QString getCmdInArgs(QString inPath, const Mark& mark);
 	static QString getCmdInArgs(QString inPath, const std::vector<Mark> marks);
