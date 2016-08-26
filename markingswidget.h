@@ -21,7 +21,6 @@ public:
 	explicit MarkingsWidget(ExportProcessor* expProc, QWidget *parent = 0);
 
 	void setFile(QString file);
-	Mark getSelectedMark() const;
 	void setCurrentPosition(qint64 pos);
 
 signals:

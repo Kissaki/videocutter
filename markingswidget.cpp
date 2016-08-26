@@ -63,12 +63,6 @@ void MarkingsWidget::setFile(QString file)
 	markersModel->setFile(file);
 }
 
-//FIXME
-Mark MarkingsWidget::getSelectedMark() const
-{
-	return Mark();
-}
-
 void MarkingsWidget::setCurrentPosition(qint64 pos)
 {
 	currentPosition = pos;
