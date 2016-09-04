@@ -34,6 +34,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, uiNotifyRate(new QSpinBox(this))
 	, playerVolume(new QSlider(Qt::Horizontal, this))
 	, playerPlayPause(new QPushButton("⏯", this))
+	, playerSkipToStart(new QPushButton("⏮", this))
 	, playerSkipBackward(new QPushButton("⏪", this))
 	, playerSkipForward(new QPushButton("⏩", this))
 	, videoWidget(new QVideoWidget(this))
@@ -54,6 +55,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	uiNotifyRate->setObjectName("uiNotifyRate");
 	playerVolume->setObjectName("playerVolume");
 	playerPlayPause->setObjectName("playerPlayPause");
+	playerSkipToStart->setObjectName("playerSkipToStart");
 	playerSkipBackward->setObjectName("playerSkipBackward");
 	playerSkipForward->setObjectName("playerSkipForward");
 
@@ -159,6 +161,7 @@ QBoxLayout* AppWindow::setupLayoutBottom()
 	layTimeControls->addWidget(gbTime);
 	auto gbControls = new QGroupBox("Playback", this);
 	auto layControls = new QHBoxLayout();
+	layControls->addWidget(playerSkipToStart);
 	layControls->addWidget(playerSkipBackward);
 	layControls->addWidget(playerPlayPause);
 	layControls->addWidget(playerSkipForward);
@@ -354,6 +357,11 @@ void AppWindow::on_playerPlayPause_clicked()
 	{
 		player.play();
 	}
+}
+
+void AppWindow::on_playerSkipToStart_clicked()
+{
+	player.setPosition(timeLow->value());
 }
 
 void AppWindow::on_playerSkipBackward_clicked()

@@ -51,6 +51,7 @@ private slots:
 	void on_player_notifyIntervalChanged(int ms);
 	void on_playerVolume_valueChanged(int v);
 	void on_playerPlayPause_clicked();
+	void on_playerSkipToStart_clicked();
 	void on_playerSkipBackward_clicked();
 	void on_playerSkipForward_clicked();
 	void onPlayRange(int timeStartMS, int timeEndMS);
@@ -75,6 +76,7 @@ private:
 	QSpinBox* uiNotifyRate;
 	QSlider* playerVolume;
 	QPushButton* playerPlayPause;
+	QPushButton* playerSkipToStart;
 	QPushButton* playerSkipBackward;
 	QPushButton* playerSkipForward;
 	MarkingsWidget* markinsWidget;
