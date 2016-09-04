@@ -24,9 +24,9 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	: QWidget(parent)
 	, tray(tray)
 	, duration(new QLabel("0", this))
-	, timeLow(new QLineEdit("0", this))
-	, timeHigh(new QLineEdit("0", this))
-	, timeCurrent(new QLineEdit("0", this))
+	, timeLow(new QSpinBox(this))
+	, timeHigh(new QSpinBox(this))
+	, timeCurrent(new QSpinBox(this))
 	, sliderZoom(new QSlider(Qt::Horizontal, this))
 	, sliderZoomRHS(new QSlider(Qt::Horizontal, this))
 	, sliderTime(new QSlider(Qt::Horizontal, this))
@@ -43,6 +43,8 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, skipDistance(5000)
 {
 	openFile->setObjectName("openFile");
+	timeLow->setObjectName("timeLow");
+	timeHigh->setObjectName("timeHigh");
 	timeCurrent->setObjectName("timeCurrent");
 	sliderZoom->setObjectName("sliderZoom");
 	sliderZoomRHS->setObjectName("sliderZoomRHS");
@@ -57,6 +59,11 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 
 	setupLayout();
 
+	const int TIME_STEPSIZE = 100;
+	timeLow->setSingleStep(TIME_STEPSIZE);
+	timeHigh->setSingleStep(TIME_STEPSIZE);
+	timeCurrent->setSingleStep(TIME_STEPSIZE);
+
 	setupMediaPlayer();
 	player.setVideoOutput(videoWidget);
 	playbackSpeed->setSingleStep(0.5);
@@ -69,7 +76,10 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	uiNotifyRate->setRange(100, 1000);
 	uiNotifyRate->setSingleStep(100);
 	uiNotifyRate->setValue(1000);
-	timeCurrent->setValidator(new QIntValidator(timeCurrent));
+
+	timeLow->setRange(0, 0);
+	timeHigh->setRange(0, 0);
+	timeCurrent->setRange(0, 0);
 
 	setAcceptDrops(true);
 
@@ -139,11 +149,11 @@ QBoxLayout* AppWindow::setupLayoutBottom()
 	auto layTime = new QHBoxLayout();
 	auto gbTime = new QGroupBox(tr("Time [ms]"), this);
 	layTime->addWidget(new QLabel(tr("Range Beginning"), gbTime));
-	layTime->addWidget(timeLow, 0, Qt::AlignLeft);
+	layTime->addWidget(timeLow);
 	layTime->addWidget(new QLabel(tr("Current Time"), gbTime));
-	layTime->addWidget(timeCurrent, 0, Qt::AlignLeft);
+	layTime->addWidget(timeCurrent);
 	layTime->addWidget(new QLabel(tr("Range End"), gbTime));
-	layTime->addWidget(timeHigh, 0, Qt::AlignLeft);
+	layTime->addWidget(timeHigh);
 	layTime->addStretch(1);
 	gbTime->setLayout(layTime);
 	layTimeControls->addWidget(gbTime);
@@ -198,33 +208,63 @@ void AppWindow::onCurrentFileChanged(QString& newFile)
 	player.playlist()->addMedia(QUrl::fromLocalFile(newFile));
 	player.playlist()->setCurrentIndex(1);
 
-	sliderZoom->setMaximum(player.duration());
+	auto max = player.duration();
+	timeLow->setRange(0, max);
+	timeHigh->setRange(0, max);
+	timeCurrent->setRange(0, max);
+	sliderZoom->setMaximum(max);
 	sliderZoom->setValue(0);
-	sliderZoomRHS->setMaximum(player.duration());
-	sliderZoomRHS->setValue(sliderZoomRHS->maximum());
+	sliderZoomRHS->setMaximum(max);
+	sliderZoomRHS->setValue(max);
 	sliderTime->setMinimum(sliderZoom->value());
-	sliderTime->setMaximum(sliderZoomRHS->value());
-	duration->setText(QString().sprintf("%d", player.duration()));
+	sliderTime->setMaximum(max);
+	duration->setText(QString().sprintf("%d", max));
 
 	player.play();
 }
 
+void AppWindow::on_timeLow_valueChanged(int v)
+{
+	sliderZoom->setValue(v);
+
+	timeHigh->setMinimum(v);
+	timeCurrent->setMinimum(timeLow->value());
+}
+
 void AppWindow::on_sliderZoom_valueChanged(int v)
 {
+	timeLow->setValue(v);
+
 	sliderZoomRHS->setMinimum(v);
 	sliderTime->setMinimum(v);
 }
 
+void AppWindow::on_timeHigh_valueChanged(int v)
+{
+	sliderZoomRHS->setValue(v);
+
+	timeLow->setMaximum(v);
+	timeCurrent->setMaximum(v);
+}
+
 void AppWindow::on_sliderZoomRHS_valueChanged(int v)
 {
+	timeHigh->setValue(v);
+
 	sliderZoom->setMaximum(v);
 	sliderTime->setMaximum(v);
 }
 
 void AppWindow::on_player_durationChanged(qint64 d)
 {
+	timeLow->setRange(0, d);
+	timeHigh->setRange(0, d);
+	timeCurrent->setRange(0, d);
+
 	sliderZoomRHS->setMaximum(d);
+	timeHigh->setValue(d);
 	sliderZoomRHS->setValue(d);
+
 	duration->setText(QString::number(d));
 }
 
@@ -235,7 +275,7 @@ void AppWindow::on_player_positionChanged(qint64 position)
 		sliderTime->setValue(position);
 	}
 	markinsWidget->setCurrentPosition(position);
-	timeCurrent->setText(QString::number(position));
+	timeCurrent->setValue(position);
 
 	if (sliderZoomRHS->value() > 0 && position >= sliderZoomRHS->value() && player.state() == QMediaPlayer::PlayingState)
 	{
@@ -246,14 +286,14 @@ void AppWindow::on_player_positionChanged(qint64 position)
 void AppWindow::updateTimeLabels()
 {
 	markinsWidget->setCurrentPosition(player.position());
-	timeCurrent->setText(QString::number(player.position()));
+	timeCurrent->setValue(player.position());
 }
 
-void AppWindow::on_timeCurrent_textEdited(const QString &text)
+void AppWindow::on_timeCurrent_valueChanged(int v)
 {
-	bool ok;
-	auto v = text.toInt(&ok);
-	if (ok)
+	// We handle user input or player position change.
+	// In case of user input, we set the player position.
+	if (player.position() != v)
 	{
 		player.setPosition(v);
 	}
@@ -280,8 +320,8 @@ void AppWindow::on_sliderTime_rangeChanged(int min, int max)
 	{
 		sliderTime->setValue(max);
 	}
-	timeLow->setText(QString::number(min));
-	timeHigh->setText(QString::number(max));
+	timeLow->setValue(min);
+	timeHigh->setValue(max);
 }
 
 void AppWindow::on_playbackSpeed_valueChanged(double v)
