@@ -66,8 +66,8 @@ private:
 	QSlider* sliderTime;
 	QPushButton* openFile;
 	QLabel* duration;
-	QLabel* timeLow;
-	QLabel* timeHigh;
+	QLineEdit* timeLow;
+	QLineEdit* timeHigh;
 	QLineEdit* timeCurrent;
 	QDoubleSpinBox* playbackSpeed;
 	QSpinBox* uiNotifyRate;
