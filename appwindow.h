@@ -86,6 +86,7 @@ private:
 	QBoxLayout* setupLayoutFileInfo();
 	QBoxLayout* setupLayoutBottom();
 	void setupMediaPlayer();
+	void resetPlayerControls();
 
 	void dragEnterEvent(QDragEnterEvent *event) override;
 	void dropEvent(QDropEvent *event) override;

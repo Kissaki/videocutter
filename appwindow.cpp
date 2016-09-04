@@ -67,12 +67,12 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	timeCurrent->setSingleStep(TIME_STEPSIZE);
 
 	setupMediaPlayer();
-	player.setVideoOutput(videoWidget);
+	resetPlayerControls();
 	playbackSpeed->setSingleStep(0.5);
 	// With higher values than 4.0 QMediaPlayer simply sets it to 1.0 instead. https://bugreports.qt.io/browse/QTBUG-55354
 	// According to documentation of QMediaPlayer, negative values should work, but do not. In case that's format or system specific, allow negative numbers for now.
 	playbackSpeed->setRange(-4.0, 4.0);
-	playbackSpeed->setValue(player.playbackRate());
+	playbackSpeed->setValue(1.0);
 	playerVolume->setRange(0, 100);
 	playerVolume->setValue(player.volume());
 	uiNotifyRate->setRange(100, 1000);
@@ -187,6 +187,18 @@ void AppWindow::setupMediaPlayer()
 	auto playlist = new QMediaPlaylist(&player);
 	playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
 	player.setPlaylist(playlist);
+	player.setVideoOutput(videoWidget);
+}
+
+void AppWindow::resetPlayerControls()
+{
+	duration->setText(QString().sprintf("%d", 0));
+	timeLow->setRange(0, 0);
+	timeHigh->setRange(0, 0);
+	timeCurrent->setRange(0, 0);
+	sliderZoom->setMaximum(0);
+	sliderZoomRHS->setMaximum(0);
+	sliderTime->setRange(0, 0);
 }
 
 void AppWindow::on_openFile_clicked()
@@ -205,23 +217,14 @@ void AppWindow::on_openFile_clicked()
 void AppWindow::onCurrentFileChanged(QString& newFile)
 {
 	qDebug() << "opening file" << newFile;
+
+	resetPlayerControls();
+
 	currentFile = newFile;
 	markinsWidget->setFile(currentFile);
 	player.playlist()->clear();
 	player.playlist()->addMedia(QUrl::fromLocalFile(newFile));
 	player.playlist()->setCurrentIndex(1);
-
-	auto max = player.duration();
-	timeLow->setRange(0, max);
-	timeHigh->setRange(0, max);
-	timeCurrent->setRange(0, max);
-	sliderZoom->setMaximum(max);
-	sliderZoom->setValue(0);
-	sliderZoomRHS->setMaximum(max);
-	sliderZoomRHS->setValue(max);
-	sliderTime->setMinimum(sliderZoom->value());
-	sliderTime->setMaximum(max);
-	duration->setText(QString().sprintf("%d", max));
 
 	player.play();
 }
