@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	tray.show();
 
 	AppWindow m(&tray);
-	m.show();
+	m.showMaximized();
 
 	return a.exec();
 }
