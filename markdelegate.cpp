@@ -56,7 +56,7 @@ bool MarkDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const Q
 {
 	if (index.isValid() && event->type() == QEvent::MouseButtonPress)
 	{
-		if (index.column() == 2 || index.column() == 3)
+		if (index.column() == COLS::SET_START || index.column() == COLS::SET_END)
 		{
 			int iCol = index.column() - 2;
 			auto i = model->index(index.row(), iCol);
