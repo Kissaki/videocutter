@@ -42,7 +42,6 @@ void MarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 		button.rect = option.rect;
 		button.text = buttonText;
 		button.state = QStyle::State_Enabled;
-		QStyle::State_Active;
 
 		QApplication::style()->drawControl(QStyle::CE_PushButton, &button, painter);
 	}
