@@ -16,6 +16,9 @@
 
 MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	: QGroupBox(tr("Markings"), parent)
+	, markersModel(new MarkersModel(expProc, this))
+	, markDelegate(new MarkDelegate(this))
+	, currentPosition(0)
 	, view(new QTableView)
 	, add(new QPushButton(tr("Add"), this))
 	, add5s(new QPushButton(tr("Add [5s]"), this))
@@ -24,9 +27,6 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	, concat(new QPushButton(tr("Concat"), this))
 	, copy(new QCheckBox(tr("Copy"), this))
 	, outFfmpeg(new QLineEdit(this))
-	, markersModel(new MarkersModel(expProc, this))
-	, markDelegate(new MarkDelegate(this))
-	, currentPosition(0)
 {
 	add->setObjectName("add");
 	add5s->setObjectName("add5s");

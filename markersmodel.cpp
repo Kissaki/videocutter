@@ -9,8 +9,8 @@
 
 MarkersModel::MarkersModel(ExportProcessor* expProc, QObject* parent)
  : QAbstractTableModel(parent)
- , exportProcessor(expProc)
  , copyData(false)
+ , exportProcessor(expProc)
 {
 }
 
