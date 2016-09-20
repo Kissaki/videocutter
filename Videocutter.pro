@@ -7,7 +7,7 @@
 QT       += core gui multimedia multimediawidgets
 
 #CONFIG += c++11
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++11 -Werror
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
