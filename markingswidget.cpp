@@ -113,6 +113,6 @@ void MarkingsWidget::onSelectionChanged(const QModelIndex &current, const QModel
 
 void MarkingsWidget::onMarkPlayClicked(int row)
 {
-	Mark& mark = markersModel->getMark(row);
+	const Mark& mark = markersModel->getMark(row);
 	emit playRange(mark.start, mark.end);
 }
