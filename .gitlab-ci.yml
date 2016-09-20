@@ -1,0 +1,7 @@
+image: kissaki/qt5-buildenv:latest
+
+build:
+  script:
+    - cd /builds/Kissaki/Videocutter
+    - qmake
+    - make
