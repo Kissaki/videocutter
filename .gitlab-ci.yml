@@ -1,7 +1,11 @@
 image: kissaki/qt5-buildenv:latest
 
 build:
+  stage: build
   script:
-    - cd /builds/Kissaki/Videocutter
     - qmake
     - make
+  artifacts:
+    name: "${CI_PROJECT_NAME}_${CI_BUILD_NAME}_${CI_BUILD_REF_NAME}_${CI_BUILD_REF}"
+    paths:
+    - bin/Videocutter
