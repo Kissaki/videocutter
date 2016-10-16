@@ -1,0 +1,5 @@
+{
+    "files.exclude": {
+        "**/*.pro.user*": true
+    }
+}
