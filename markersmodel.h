@@ -18,8 +18,8 @@ public:
 	void load();
 	void exportMark(int rowIndex);
 	void exportConcat();
-	void setCopy(bool copy);
-	QString getFfmpegCmd(int row, bool copy);
+	QString getFfmpegCmd(int row);
+	void setFfmpegParameters(const QString& parameters);
 	Mark getMark(int row) { return m.at(row); }
 
 	int rowCount(const QModelIndex &parent=QModelIndex()) const override;
@@ -33,7 +33,6 @@ public:
 
 private:
 	QString currentFile;
-	bool copyData;
 	Markings m;
 	ExportProcessor* exportProcessor;
 

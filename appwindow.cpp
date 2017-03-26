@@ -58,6 +58,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	playerSkipToStart->setObjectName("playerSkipToStart");
 	playerSkipBackward->setObjectName("playerSkipBackward");
 	playerSkipForward->setObjectName("playerSkipForward");
+	markinsWidget->setObjectName("markinsWidget");
 
 	setupLayout();
 
@@ -100,6 +101,26 @@ void AppWindow::onPlayRange(int timeStartMS, int timeEndMS)
 	player.play();
 }
 
+void AppWindow::on_markinsWidget_ffmpegParametersChanged(QString parameters)
+{
+
+}
+
+/*
+ * Uses:
+ * * Identifying interesting scenes in the videofile and marking them
+ * * Extracting marked scenes
+ *
+ * +---------------------------+
+ * |      layTop               |
+ * | layFileInfo | videoWidget |
+ * |             |             |
+ * +---------------------------+
+ * |          layBottom        |
+ * |     layTimeRange          |
+ * | layTimeControls | markinsWidget           |
+ * +---------------------------+
+ */
 void AppWindow::setupLayout()
 {
 	setMinimumSize(1280, 720);
@@ -141,6 +162,7 @@ QBoxLayout* AppWindow::setupLayoutFileInfo()
 QBoxLayout* AppWindow::setupLayoutBottom()
 {
 	auto layBottom = new QVBoxLayout();
+
 	auto layTimeRange = new QHBoxLayout();
 	layTimeRange->addWidget(sliderZoom);
 	layTimeRange->addWidget(sliderZoomRHS);

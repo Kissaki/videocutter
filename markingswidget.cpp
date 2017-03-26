@@ -8,6 +8,7 @@
 #include <QTableView>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QComboBox>
 #include "markwidget.h"
 #include "markersmodel.h"
 #include "markdelegate.h"
@@ -25,38 +26,56 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	, save(new QPushButton(tr("Save"), this))
 	, load(new QPushButton(tr("Load"), this))
 	, concat(new QPushButton(tr("Concat"), this))
-	, copy(new QCheckBox(tr("Copy"), this))
 	, outFfmpeg(new QLineEdit(this))
+	, ffmpegParameters(new QComboBox(this))
 {
+	view->setModel(markersModel);
+	view->setItemDelegate(markDelegate);
+
+	setupLayout();
+
 	add->setObjectName("add");
 	add5s->setObjectName("add5s");
 	save->setObjectName("save");
 	load->setObjectName("load");
-	copy->setObjectName("copy");
 	concat->setObjectName("concat");
 	markersModel->setObjectName("markersModel");
+	markDelegate->setObjectName("markDelegate");
+	ffmpegParameters->setObjectName("ffmpegParameters");
 
-	view->setModel(markersModel);
-	view->setItemDelegate(markDelegate);
-	copy->setToolTip(tr("Lossless copying of video data but with unprecisely cut beginning"));
+	QMetaObject::connectSlotsByName(this);
+	connect(view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MarkingsWidget::onSelectionChanged);
+	connect(markDelegate, &MarkDelegate::playClicked, this, &MarkingsWidget::onMarkPlayClicked);
 
+	ffmpegParameters->setEditable(true);
+	ffmpegParameters->addItem("-c copy");
+	ffmpegParameters->addItem("-level:v 4.2 -b:v 50M");
+	ffmpegParameters->addItem("-c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p");
+	ffmpegParameters->addItem("-c:v libvpx -b 50M");
+}
+
+void MarkingsWidget::setupLayout()
+{
 	auto l = new QVBoxLayout(this);
 
 	auto layActions = new QHBoxLayout;
 	layActions->addWidget(add);
 	layActions->addWidget(add5s);
+	layActions->addSpacing(4);
 	layActions->addWidget(save);
 	layActions->addWidget(load);
-	layActions->addWidget(copy);
-	layActions->addWidget(outFfmpeg, 1);
-	layActions->addWidget(concat);
+	layActions->addSpacing(4);
+
+	auto cmd = new QGroupBox(tr("Command"), this);
+	auto layExport = new QHBoxLayout;
+	layExport->addWidget(ffmpegParameters);
+	layExport->addWidget(outFfmpeg, 1);
+	layExport->addWidget(concat);
+	cmd->setLayout(layExport);
+	layActions->addWidget(cmd);
 
 	l->addWidget(view);
 	l->addLayout(layActions);
-
-	QMetaObject::connectSlotsByName(this);
-	connect(view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MarkingsWidget::onSelectionChanged);
-	connect(markDelegate, &MarkDelegate::playClicked, this, &MarkingsWidget::onMarkPlayClicked);
 }
 
 void MarkingsWidget::setFile(QString file)
@@ -100,19 +119,33 @@ void MarkingsWidget::on_concat_clicked()
 	markersModel->exportConcat();
 }
 
-void MarkingsWidget::on_copy_stateChanged(int state)
-{
-	markersModel->setCopy(state == Qt::Checked);
-}
-
 void MarkingsWidget::onSelectionChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
-	auto copyC = copy->checkState() == Qt::Checked;
-	outFfmpeg->setText(markersModel->getFfmpegCmd(current.row(), copyC));
+	outFfmpeg->setText(markersModel->getFfmpegCmd(current.row()));
+}
+
+void MarkingsWidget::on_ffmpegParameters_currentTextChanged(const QString& text)
+{
+	emit ffmpegParametersChanged(text);
+	markersModel->setFfmpegParameters(text);
+	auto index = view->selectionModel()->currentIndex();
+	outFfmpeg->setText(index.isValid() ? markersModel->getFfmpegCmd(index.row()) : QString());
 }
 
 void MarkingsWidget::onMarkPlayClicked(int row)
 {
 	const Mark& mark = markersModel->getMark(row);
 	emit playRange(mark.start, mark.end);
+}
+
+void MarkingsWidget::on_markersModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+{
+	Q_UNUSED(roles);
+	auto current = view->selectionModel()->currentIndex();
+	auto valid = current.isValid()
+			&& topLeft.isValid()
+			&& bottomRight.isValid()
+			&& topLeft.row() <= view->selectionModel()->currentIndex().row()
+			&& bottomRight.row() >= current.row();
+	outFfmpeg->setText(valid ? markersModel->getFfmpegCmd(current.row()) : QString());
 }

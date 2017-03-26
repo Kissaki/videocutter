@@ -9,7 +9,6 @@
 
 MarkersModel::MarkersModel(ExportProcessor* expProc, QObject* parent)
  : QAbstractTableModel(parent)
- , copyData(false)
  , exportProcessor(expProc)
 {
 }
@@ -62,7 +61,7 @@ void MarkersModel::load()
 
 void MarkersModel::exportMark(int rowIndex)
 {
-	exportProcessor->exportMark(currentFile, m.at(rowIndex), copyData);
+	exportProcessor->exportMark(currentFile, m.at(rowIndex));
 }
 
 void MarkersModel::exportConcat()
@@ -77,11 +76,6 @@ void MarkersModel::exportConcat()
 	}
 	qDebug() << QString::number(marks.size());
 	exportProcessor->exportConcat(currentFile, marks);
-}
-
-void MarkersModel::setCopy(bool copy)
-{
-	copyData = copy;
 }
 
 int MarkersModel::rowCount(const QModelIndex &/*parent*/) const
@@ -154,10 +148,21 @@ bool MarkersModel::setData(const QModelIndex &index, const QVariant &value, int 
 		return false;
 	}
 
+	// Prevent negative timestamps
+	if (index.column() == COLS::START || index.column() == COLS::END)
+	{
+		bool ok = false;
+		auto v = value.toInt(&ok);
+		if (!ok || v < 0)
+		{
+			return false;
+		}
+	}
+
 	auto& mark = m[i];
 	switch(index.column())
 	{
-	case 0:
+	case COLS::START:
 	{
 		mark.start = v;
 		bool adjustEnd = mark.end < mark.start;
@@ -169,7 +174,7 @@ bool MarkersModel::setData(const QModelIndex &index, const QVariant &value, int 
 		emit dataChanged(index, adjustEnd ? index.sibling(index.row(), index.column() + 1) : index);
 		return true;
 	}
-	case 1:
+	case COLS::END:
 	{
 		mark.end = v;
 		bool adjustStart = mark.end < mark.start;
@@ -230,7 +235,12 @@ bool MarkersModel::removeRows(int row, int count, const QModelIndex &parent)
 	return true;
 }
 
-QString MarkersModel::getFfmpegCmd(int row, bool copy)
+void MarkersModel::setFfmpegParameters(const QString& parameters)
 {
-	return ExportProcessor::getFfmpegExtractArgs(m.at(row), currentFile, copy);
+	exportProcessor->setFfmpegParameters(parameters);
+}
+
+QString MarkersModel::getFfmpegCmd(int row)
+{
+	return exportProcessor->getFfmpegExtractArgs(m.at(row), currentFile);
 }

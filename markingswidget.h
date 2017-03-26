@@ -13,6 +13,8 @@ class MarkDelegate;
 class ExportProcessor;
 class QCheckBox;
 class QLineEdit;
+class QComboBox;
+class QWidget;
 
 class MarkingsWidget : public QGroupBox
 {
@@ -25,6 +27,7 @@ public:
 
 signals:
 	void playRange(int timeStartMS, int timeEndMS);
+	void ffmpegParametersChanged(QString parameters);
 
 public slots:
 
@@ -34,9 +37,10 @@ private slots:
 	void on_save_clicked();
 	void on_load_clicked();
 	void on_concat_clicked();
-	void on_copy_stateChanged(int state);
+	void on_ffmpegParameters_currentTextChanged(const QString& text);
 	void onSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
 	void onMarkPlayClicked(int row);
+	void on_markersModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
 
 private:
 	MarkersModel* markersModel;
@@ -49,9 +53,10 @@ private:
 	QPushButton* save;
 	QPushButton* load;
 	QPushButton* concat;
-	// losless but unprecise copy of video data?
-	QCheckBox* copy;
+	QComboBox* ffmpegParameters;
 	QLineEdit* outFfmpeg;
+
+	void setupLayout();
 };
 
 #endif // MARKINGSWIDGET_H
