@@ -1,4 +1,6 @@
 #include "appwindow.h"
+#include "ui_appwindow.h"
+
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
@@ -21,7 +23,8 @@
 #include "exportprocessor.h"
 
 AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
-	: QWidget(parent)
+    : QMainWindow(parent)
+    , ui(new Ui::AppWindow)
 	, skipDistance(5000)
 	, tray(tray)
 	, player(this)
@@ -45,25 +48,9 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, exportProcessor(new ExportProcessor(this))
 	, markinsWidget(new MarkingsWidget(exportProcessor, this))
 {
-	openFile->setObjectName("openFile");
-	timeLow->setObjectName("timeLow");
-	timeHigh->setObjectName("timeHigh");
-	timeCurrent->setObjectName("timeCurrent");
-	sliderZoom->setObjectName("sliderZoom");
-	sliderZoomRHS->setObjectName("sliderZoomRHS");
-	sliderTime->setObjectName("sliderTime");
-	player.setObjectName("player");
-	playbackSpeed->setObjectName("playbackSpeed");
-	uiNotifyRate->setObjectName("uiNotifyRate");
-	playerVolume->setObjectName("playerVolume");
-	playerPlayPause->setObjectName("playerPlayPause");
-	playerSkipToStart->setObjectName("playerSkipToStart");
-	playerSkipBackward->setObjectName("playerSkipBackward");
-	playerSkipForward->setObjectName("playerSkipForward");
-	markinsWidget->setObjectName("markinsWidget");
-	exportProcessor->setObjectName("exportProcessor");
+	ui->setupUi(this);
 
-	setupLayout();
+	//setupLayout();
 
 	const int TIME_STEPSIZE = 100;
 	timeLow->setSingleStep(TIME_STEPSIZE);

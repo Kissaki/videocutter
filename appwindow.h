@@ -1,13 +1,14 @@
 #ifndef APPWINDOW_H
 #define APPWINDOW_H
 
-#include <QWidget>
+#include <QMainWindow>
 #include <QMediaPlayer>
 #include <QVideoWidget>
 #include <QFile>
 #include <QProcess>
 #include "markings.h"
 
+namespace Ui { class AppWindow; }
 class QBoxLayout;
 class QSlider;
 class QLabel;
@@ -21,7 +22,7 @@ class ExportProcessor;
 class QSpinBox;
 class QDoubleSpinBox;
 
-class AppWindow : public QWidget
+class AppWindow : public QMainWindow
 {
 	Q_OBJECT
 public:
@@ -60,6 +61,7 @@ private slots:
 	void on_exportProcessor_finished(QString target, int sizeMB);
 
 private:
+	Ui::AppWindow* ui;
 	int skipDistance;
 	QSystemTrayIcon* tray;
 

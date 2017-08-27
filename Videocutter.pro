@@ -38,7 +38,8 @@ HEADERS  += \
     markcolumns.h \
     exportprocessor.h
 
-FORMS    +=
+FORMS    += \
+    appwindow.ui
 
 DISTFILES +=
 
