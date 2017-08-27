@@ -48,6 +48,7 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	connect(markDelegate, &MarkDelegate::playClicked, this, &MarkingsWidget::onMarkPlayClicked);
 
 	ffmpegParameters->setEditable(true);
+	ffmpegParameters->addItem("");
 	ffmpegParameters->addItem("-c copy");
 	ffmpegParameters->addItem("-level:v 4.2 -b:v 50M");
 	ffmpegParameters->addItem("-c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p");
