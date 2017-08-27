@@ -31,6 +31,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, sliderTime(new QSlider(Qt::Horizontal, this))
 	, openFile(new QPushButton("Open"))
 	, duration(new QLabel("0", this))
+	, exportStatus(new QLabel(this))
 	, timeLow(new QSpinBox(this))
 	, timeHigh(new QSpinBox(this))
 	, timeCurrent(new QSpinBox(this))
@@ -41,7 +42,8 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	, playerSkipToStart(new QPushButton("⏮", this))
 	, playerSkipBackward(new QPushButton("⏪", this))
 	, playerSkipForward(new QPushButton("⏩", this))
-	, markinsWidget(new MarkingsWidget(new ExportProcessor(this), this))
+	, exportProcessor(new ExportProcessor(this))
+	, markinsWidget(new MarkingsWidget(exportProcessor, this))
 {
 	openFile->setObjectName("openFile");
 	timeLow->setObjectName("timeLow");
@@ -59,6 +61,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	playerSkipBackward->setObjectName("playerSkipBackward");
 	playerSkipForward->setObjectName("playerSkipForward");
 	markinsWidget->setObjectName("markinsWidget");
+	exportProcessor->setObjectName("exportProcessor");
 
 	setupLayout();
 
@@ -155,6 +158,7 @@ QBoxLayout* AppWindow::setupLayoutFileInfo()
 	layFileInfo->addWidget(openFile, 0, Qt::AlignTop);
 	layFileInfo->addWidget(duration, 0, Qt::AlignTop);
 	layFileInfo->addStretch(1);
+	layFileInfo->addWidget(exportStatus);
 
 	return layFileInfo;
 }
@@ -234,6 +238,16 @@ void AppWindow::on_openFile_clicked()
 	{
 		emit currentFileChanged(newFilePath);
 	}
+}
+
+void AppWindow::on_exportProcessor_statusInfo(QString s)
+{
+	exportStatus->setText(s);
+}
+
+void AppWindow::on_exportProcessor_finished(QString target, int sizeMB)
+{
+	exportStatus->setText(QString("Finished %1 (%2MB)").arg(target).arg(sizeMB));
 }
 
 void AppWindow::onCurrentFileChanged(QString& newFile)

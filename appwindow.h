@@ -56,6 +56,8 @@ private slots:
 	void on_playerSkipForward_clicked();
 	void onPlayRange(int timeStartMS, int timeEndMS);
 	void on_markinsWidget_ffmpegParametersChanged(QString parameters);
+	void on_exportProcessor_statusInfo(QString s);
+	void on_exportProcessor_finished(QString target, int sizeMB);
 
 private:
 	int skipDistance;
@@ -70,6 +72,7 @@ private:
 	QSlider* sliderTime;
 	QPushButton* openFile;
 	QLabel* duration;
+	QLabel* exportStatus;
 	QSpinBox* timeLow;
 	QSpinBox* timeHigh;
 	QSpinBox* timeCurrent;
@@ -80,6 +83,7 @@ private:
 	QPushButton* playerSkipToStart;
 	QPushButton* playerSkipBackward;
 	QPushButton* playerSkipForward;
+	ExportProcessor* exportProcessor;
 	MarkingsWidget* markinsWidget;
 
 	void setupLayout();

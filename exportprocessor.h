@@ -11,8 +11,6 @@ class ExportProcessor : public QObject
 {
 	Q_OBJECT
 public:
-	QProcess* extractProcess;
-
 	explicit ExportProcessor(QObject *parent = 0);
 
 	QString getFfmpegExtractArgs(const Mark& mark, const QString& inPath);
@@ -22,7 +20,9 @@ public:
 	void exportConcat(const QString& inPath, const std::vector<Mark> marks);
 
 signals:
-	void log(QString s) const;
+	void starting(QString command);
+	void statusInfo(QString s) const;
+	void finished(QString target, int sizeMB);
 
 public slots:
 
@@ -32,9 +32,10 @@ private slots:
 	void on_extractProcess_finished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
+	QProcess* extractProcess;
 	ExportProcessor* exportProcessor;
-	QTextEdit* logWidget;
 	QString ffmpegParameters;
+	QString outPath;
 
 	static QString getCmdTimeArgs(const Mark& mark);
 	static QString getCmdInArgs(QString inPath, const Mark& mark);
