@@ -21,7 +21,7 @@ public:
 
 signals:
 	void starting(QString command);
-	void statusInfo(QString s) const;
+	void statusInfo(QString s);
 	void finished(QString target, int sizeMB);
 
 public slots:

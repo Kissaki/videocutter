@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     markingswidget.cpp \
     markersmodel.cpp \
     markdelegate.cpp \
-    exportprocessor.cpp
+    exportprocessor.cpp \
+    dialogs/filenamedialog.cpp
 
 HEADERS  += \
     appwindow.h \
@@ -36,10 +37,13 @@ HEADERS  += \
     markersmodel.h \
     markdelegate.h \
     markcolumns.h \
-    exportprocessor.h
+    exportprocessor.h \
+    dialogs/filenamedialog.h
 
 FORMS    += \
-    appwindow.ui
+    appwindow.ui \
+    markingswidget.ui \
+    dialogs/filenamedialog.ui
 
 DISTFILES +=
 

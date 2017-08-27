@@ -28,8 +28,13 @@ class AppWindow : public QMainWindow
 public:
 	explicit AppWindow(QSystemTrayIcon* tray, QWidget *parent = 0);
 
+	/**
+	 * @brief setFilepath opens the file with path newFile
+	 * @param newFile
+	 */
+	void setFilepath(const QString& newFile);
+
 signals:
-	void currentFileChanged(QString& newFile);
 
 public slots:
 
@@ -38,7 +43,6 @@ private slots:
 	void on_timeLow_valueChanged(int v);
 	void on_timeHigh_valueChanged(int v);
 	void on_timeCurrent_valueChanged(int v);
-	void onCurrentFileChanged(QString& newFile);
 	void on_sliderZoom_valueChanged(int v);
 	void on_sliderZoomRHS_valueChanged(int v);
 	void on_player_durationChanged(qint64 d);
@@ -68,35 +72,14 @@ private:
 	QString currentFile;
 	QMediaPlayer player;
 
-	QVideoWidget* videoWidget;
-	QSlider* sliderZoom;
-	QSlider* sliderZoomRHS;
-	QSlider* sliderTime;
-	QPushButton* openFile;
-	QLabel* duration;
-	QLabel* exportStatus;
-	QSpinBox* timeLow;
-	QSpinBox* timeHigh;
-	QSpinBox* timeCurrent;
-	QDoubleSpinBox* playbackSpeed;
-	QSpinBox* uiNotifyRate;
-	QSlider* playerVolume;
-	QPushButton* playerPlayPause;
-	QPushButton* playerSkipToStart;
-	QPushButton* playerSkipBackward;
-	QPushButton* playerSkipForward;
 	ExportProcessor* exportProcessor;
-	MarkingsWidget* markinsWidget;
 
-	void setupLayout();
-	QBoxLayout* setupLayoutTop();
-	QBoxLayout* setupLayoutFileInfo();
-	QBoxLayout* setupLayoutBottom();
 	void setupMediaPlayer();
 	void resetPlayerControls();
 
 	void dragEnterEvent(QDragEnterEvent *event) override;
 	void dropEvent(QDropEvent *event) override;
+	void keyPressEvent(QKeyEvent *key) override;
 };
 
 #endif // APPWINDOW_H

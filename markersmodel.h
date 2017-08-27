@@ -31,6 +31,8 @@ public:
 	bool insertRows(int row, int count, const QModelIndex &parent) override;
 	bool removeRows(int row, int count, const QModelIndex &parent) override;
 
+signals:
+
 private:
 	QString currentFile;
 	Markings m;

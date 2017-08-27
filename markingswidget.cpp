@@ -15,9 +15,9 @@
 #include "exportprocessor.h"
 #include "markcolumns.h"
 
-MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
+MarkingsWidget::MarkingsWidget(QWidget* parent)
 	: QGroupBox(tr("Markings"), parent)
-	, markersModel(new MarkersModel(expProc, this))
+    , markersModel(nullptr)
 	, markDelegate(new MarkDelegate(this))
 	, currentPosition(0)
 	, view(new QTableView)
@@ -29,7 +29,6 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	, outFfmpeg(new QLineEdit(this))
 	, ffmpegParameters(new QComboBox(this))
 {
-	view->setModel(markersModel);
 	view->setItemDelegate(markDelegate);
 
 	setupLayout();
@@ -39,7 +38,6 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	save->setObjectName("save");
 	load->setObjectName("load");
 	concat->setObjectName("concat");
-	markersModel->setObjectName("markersModel");
 	markDelegate->setObjectName("markDelegate");
 	ffmpegParameters->setObjectName("ffmpegParameters");
 
@@ -53,6 +51,14 @@ MarkingsWidget::MarkingsWidget(ExportProcessor* expProc, QWidget* parent)
 	ffmpegParameters->addItem("-level:v 4.2 -b:v 50M");
 	ffmpegParameters->addItem("-c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p");
 	ffmpegParameters->addItem("-c:v libvpx -b 50M");
+}
+
+void MarkingsWidget::setExportProcessor(ExportProcessor* expProc)
+{
+	markersModel = new MarkersModel(expProc, this);
+	markersModel->setObjectName("markersModel");
+	view->setModel(markersModel);
+	connect(markersModel, &MarkersModel::dataChanged, this, &MarkingsWidget::onMarkersModelDataChanged);
 }
 
 void MarkingsWidget::setupLayout()
