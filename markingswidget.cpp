@@ -42,7 +42,6 @@ MarkingsWidget::MarkingsWidget(QWidget* parent)
 	ffmpegParameters->setObjectName("ffmpegParameters");
 
 	QMetaObject::connectSlotsByName(this);
-	connect(view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MarkingsWidget::onSelectionChanged);
 	connect(markDelegate, &MarkDelegate::playClicked, this, &MarkingsWidget::onMarkPlayClicked);
 
 	ffmpegParameters->setEditable(true);
@@ -58,6 +57,9 @@ void MarkingsWidget::setExportProcessor(ExportProcessor* expProc)
 	markersModel = new MarkersModel(expProc, this);
 	markersModel->setObjectName("markersModel");
 	view->setModel(markersModel);
+	// The selection model changes when setting a model
+	// see http://doc.qt.io/qt-4.8/qabstractitemview.html#setSelectionModel
+	connect(view->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MarkingsWidget::onSelectionChanged);
 	connect(markersModel, &MarkersModel::dataChanged, this, &MarkingsWidget::onMarkersModelDataChanged);
 }
 
@@ -145,7 +147,7 @@ void MarkingsWidget::onMarkPlayClicked(int row)
 	emit playRange(mark.start, mark.end);
 }
 
-void MarkingsWidget::on_markersModel_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+void MarkingsWidget::onMarkersModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
 	Q_UNUSED(roles);
 	auto current = view->selectionModel()->currentIndex();
