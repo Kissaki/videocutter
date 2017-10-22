@@ -15,10 +15,11 @@ MarkersModel::MarkersModel(ExportProcessor* expProc, QObject* parent)
 
 void MarkersModel::setFile(QString file)
 {
-	if (!currentFile.isNull())
+	if (!currentFile.isNull() && (!m.empty() || getNewCurrentStorageFile()->exists()))
 	{
 		save();
 	}
+
 	currentFile = file;
 	QFile f(file);
 	if (f.exists())
