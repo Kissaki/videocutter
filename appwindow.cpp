@@ -66,6 +66,9 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 
 	connect(ui->markinsWidget, &MarkingsWidget::playRange, this, &AppWindow::onPlayRange);
 	connect(player, &QMediaPlayer::stateChanged, this, &AppWindow::updateTimeLabels);
+
+	// Default volume
+	ui->playerVolume->setValue(60);
 }
 
 void AppWindow::setFilepath(const QString& newFile)
