@@ -20,6 +20,7 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include <QMediaPlayer>
+#include <QMessageBox>
 
 #include "markings.h"
 #include "dialogs/filenamedialog.h"
@@ -338,6 +339,21 @@ void AppWindow::keyPressEvent(QKeyEvent *key)
 			bool success = f.rename(newPath);
 			qDebug() << "Renaming " << oldPath << " to " << newPath << "; Success: " << success;
 			setFilepath(newPath);
+		}
+	}
+	else if (key->key() == Qt::Key_Delete)
+	{
+		QFileInfo fi(currentFile);
+		QString title = tr("File Removal");
+		QString text = tr("Are you sure you want to delete the file %1?").arg(fi.fileName());
+		auto res = QMessageBox::question(this, title, text, QMessageBox::Yes|QMessageBox::Cancel);
+		if (res == QMessageBox::Yes)
+		{
+			auto oldPath = currentFile;
+			setFilepath(QLatin1String());
+			QFile f(oldPath);
+			bool success = f.remove();
+			qDebug() << "Removing file " << oldPath << "; Success: " << success;
 		}
 	}
 }
