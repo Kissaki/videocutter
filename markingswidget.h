@@ -5,6 +5,7 @@
 
 #include "markings.h"
 
+namespace Ui { class MarkingsWidget; }
 class QPushButton;
 class QVBoxLayout;
 class QTableView;
@@ -45,20 +46,10 @@ private slots:
 	void onMarkersModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
 
 private:
+	Ui::MarkingsWidget* ui;
 	MarkersModel* markersModel;
 	MarkDelegate* markDelegate;
 	qint64 currentPosition;
-
-	QTableView* view;
-	QPushButton* add;
-	QPushButton* add5s;
-	QPushButton* save;
-	QPushButton* load;
-	QPushButton* concat;
-	QComboBox* ffmpegParameters;
-	QLineEdit* outFfmpeg;
-
-	void setupLayout();
 };
 
 #endif // MARKINGSWIDGET_H
