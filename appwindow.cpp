@@ -61,7 +61,6 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 
 	setAcceptDrops(true);
 
-	QMetaObject::connectSlotsByName(this);
 	connect(ui->markinsWidget, &MarkingsWidget::playRange, this, &AppWindow::onPlayRange);
 	connect(&player, &QMediaPlayer::stateChanged, this, &AppWindow::updateTimeLabels);
 }
