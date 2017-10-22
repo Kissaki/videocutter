@@ -28,10 +28,10 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
     , ui(new Ui::AppWindow)
 	, skipDistance(5000)
 	, tray(tray)
-    , player(this)
+    , player(new QMediaPlayer(this))
     , exportProcessor(new ExportProcessor(this))
 {
-	player.setObjectName("player");
+	player->setObjectName("player");
 	exportProcessor->setObjectName("exportProcessor");
 	ui->setupUi(this);
 
@@ -50,7 +50,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	ui->playbackSpeed->setRange(-4.0, 4.0);
 	ui->playbackSpeed->setValue(1.0);
 	ui->playerVolume->setRange(0, 100);
-	ui->playerVolume->setValue(player.volume());
+	ui->playerVolume->setValue(player->volume());
 	ui->uiNotifyRate->setRange(100, 1000);
 	ui->uiNotifyRate->setSingleStep(100);
 	ui->uiNotifyRate->setValue(1000);
@@ -62,32 +62,32 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	setAcceptDrops(true);
 
 	connect(ui->markinsWidget, &MarkingsWidget::playRange, this, &AppWindow::onPlayRange);
-	connect(&player, &QMediaPlayer::stateChanged, this, &AppWindow::updateTimeLabels);
+	connect(player, &QMediaPlayer::stateChanged, this, &AppWindow::updateTimeLabels);
 }
 
 void AppWindow::setFilepath(const QString& newFile)
 {
 	qDebug() << "opening file" << newFile;
 
-	player.stop();
+	player->stop();
 	resetPlayerControls();
 
 	currentFile = newFile;
 	ui->markinsWidget->setFile(currentFile);
-	player.playlist()->clear();
-	player.playlist()->addMedia(QUrl::fromLocalFile(newFile));
-	player.playlist()->setCurrentIndex(1);
+	player->playlist()->clear();
+	player->playlist()->addMedia(QUrl::fromLocalFile(newFile));
+	player->playlist()->setCurrentIndex(1);
 
-	player.play();
+	player->play();
 }
 
 void AppWindow::onPlayRange(int timeStartMS, int timeEndMS)
 {
-	player.pause();
+	player->pause();
 	ui->sliderZoomLHS->setValue(timeStartMS);
 	ui->sliderZoomRHS->setValue(timeEndMS);
-	player.setPosition(timeStartMS);
-	player.play();
+	player->setPosition(timeStartMS);
+	player->play();
 }
 
 void AppWindow::on_markinsWidget_ffmpegParametersChanged(QString parameters)
@@ -97,10 +97,10 @@ void AppWindow::on_markinsWidget_ffmpegParametersChanged(QString parameters)
 
 void AppWindow::setupMediaPlayer()
 {
-	auto playlist = new QMediaPlaylist(&player);
+	auto playlist = new QMediaPlaylist(player);
 	playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
-	player.setPlaylist(playlist);
-	player.setVideoOutput(ui->videoWidget);
+	player->setPlaylist(playlist);
+	player->setVideoOutput(ui->videoWidget);
 }
 
 void AppWindow::resetPlayerControls()
@@ -191,25 +191,25 @@ void AppWindow::on_player_positionChanged(qint64 position)
 	ui->markinsWidget->setCurrentPosition(position);
 	ui->timeCurrent->setValue(position);
 
-	if (ui->sliderZoomRHS->value() > 0 && position >= ui->sliderZoomRHS->value() && player.state() == QMediaPlayer::PlayingState)
+	if (ui->sliderZoomRHS->value() > 0 && position >= ui->sliderZoomRHS->value() && player->state() == QMediaPlayer::PlayingState)
 	{
-		player.setPosition(ui->sliderZoomLHS->value());
+		player->setPosition(ui->sliderZoomLHS->value());
 	}
 }
 
 void AppWindow::updateTimeLabels()
 {
-	ui->markinsWidget->setCurrentPosition(player.position());
-	ui->timeCurrent->setValue(player.position());
+	ui->markinsWidget->setCurrentPosition(player->position());
+	ui->timeCurrent->setValue(player->position());
 }
 
 void AppWindow::on_timeCurrent_valueChanged(int v)
 {
 	// We handle user input or player position change.
 	// In case of user input, we set the player position.
-	if (player.position() != v)
+	if (player->position() != v)
 	{
-		player.setPosition(v);
+		player->setPosition(v);
 	}
 }
 
@@ -220,7 +220,7 @@ void AppWindow::on_sliderTime_valueChanged(int v)
 {
 	if (ui->sliderTime->isSliderDown())
 	{
-		player.setPosition(v);
+		player->setPosition(v);
 	}
 }
 
@@ -240,7 +240,7 @@ void AppWindow::on_sliderTime_rangeChanged(int min, int max)
 
 void AppWindow::on_playbackSpeed_valueChanged(double v)
 {
-	player.setPlaybackRate(v);
+	player->setPlaybackRate(v);
 }
 
 void AppWindow::on_player_playbackRateChanged(qreal rate)
@@ -255,39 +255,39 @@ void AppWindow::on_player_notifyIntervalChanged(int ms)
 
 void AppWindow::on_playerVolume_valueChanged(int v)
 {
-	player.setVolume(v);
+	player->setVolume(v);
 }
 
 void AppWindow::on_playerPlayPause_clicked()
 {
-	if (player.state() == QMediaPlayer::PlayingState)
+	if (player->state() == QMediaPlayer::PlayingState)
 	{
-		player.pause();
+		player->pause();
 	}
 	else
 	{
-		player.play();
+		player->play();
 	}
 }
 
 void AppWindow::on_playerSkipToStart_clicked()
 {
-	player.setPosition(ui->timeLow->value());
+	player->setPosition(ui->timeLow->value());
 }
 
 void AppWindow::on_playerSkipBackward_clicked()
 {
-	player.setPosition(player.position() - skipDistance);
+	player->setPosition(player->position() - skipDistance);
 }
 
 void AppWindow::on_playerSkipForward_clicked()
 {
-	player.setPosition(player.position() + skipDistance);
+	player->setPosition(player->position() + skipDistance);
 }
 
 void AppWindow::on_uiNotifyRate_valueChanged(int v)
 {
-	player.setNotifyInterval(v);
+	player->setNotifyInterval(v);
 }
 
 void AppWindow::dragEnterEvent(QDragEnterEvent *event)

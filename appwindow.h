@@ -2,13 +2,13 @@
 #define APPWINDOW_H
 
 #include <QMainWindow>
-#include <QMediaPlayer>
 #include <QVideoWidget>
 #include <QFile>
 #include <QProcess>
 #include "markings.h"
 
 namespace Ui { class AppWindow; }
+class QMediaPlayer;
 class QBoxLayout;
 class QSlider;
 class QLabel;
@@ -70,7 +70,7 @@ private:
 	QSystemTrayIcon* tray;
 
 	QString currentFile;
-	QMediaPlayer player;
+	QMediaPlayer* player;
 
 	ExportProcessor* exportProcessor;
 
