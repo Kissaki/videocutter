@@ -63,7 +63,7 @@
       <item>
        <layout class="QHBoxLayout" name="layTimeRange">
         <item>
-         <widget class="QSlider" name="sliderZoom">
+         <widget class="QSlider" name="sliderZoomLHS">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>

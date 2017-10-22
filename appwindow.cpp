@@ -85,7 +85,7 @@ void AppWindow::setFilepath(const QString& newFile)
 void AppWindow::onPlayRange(int timeStartMS, int timeEndMS)
 {
 	player.pause();
-	ui->sliderZoom->setValue(timeStartMS);
+	ui->sliderZoomLHS->setValue(timeStartMS);
 	ui->sliderZoomRHS->setValue(timeEndMS);
 	player.setPosition(timeStartMS);
 	player.play();
@@ -110,7 +110,7 @@ void AppWindow::resetPlayerControls()
 	ui->timeLow->setRange(0, 0);
 	ui->timeHigh->setRange(0, 0);
 	ui->timeCurrent->setRange(0, 0);
-	ui->sliderZoom->setMaximum(0);
+	ui->sliderZoomLHS->setMaximum(0);
 	ui->sliderZoomRHS->setMaximum(0);
 	ui->sliderTime->setRange(0, 0);
 }
@@ -140,13 +140,13 @@ void AppWindow::on_exportProcessor_finished(QString target, int sizeMB)
 
 void AppWindow::on_timeLow_valueChanged(int v)
 {
-	ui->sliderZoom->setValue(v);
+	ui->sliderZoomLHS->setValue(v);
 
 	ui->timeHigh->setMinimum(v);
 	ui->timeCurrent->setMinimum(ui->timeLow->value());
 }
 
-void AppWindow::on_sliderZoom_valueChanged(int v)
+void AppWindow::on_sliderZoomLHS_valueChanged(int v)
 {
 	ui->timeLow->setValue(v);
 
@@ -166,7 +166,7 @@ void AppWindow::on_sliderZoomRHS_valueChanged(int v)
 {
 	ui->timeHigh->setValue(v);
 
-	ui->sliderZoom->setMaximum(v);
+	ui->sliderZoomLHS->setMaximum(v);
 	ui->sliderTime->setMaximum(v);
 }
 
@@ -194,7 +194,7 @@ void AppWindow::on_player_positionChanged(qint64 position)
 
 	if (ui->sliderZoomRHS->value() > 0 && position >= ui->sliderZoomRHS->value() && player.state() == QMediaPlayer::PlayingState)
 	{
-		player.setPosition(ui->sliderZoom->value());
+		player.setPosition(ui->sliderZoomLHS->value());
 	}
 }
 

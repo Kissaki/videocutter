@@ -43,7 +43,7 @@ private slots:
 	void on_timeLow_valueChanged(int v);
 	void on_timeHigh_valueChanged(int v);
 	void on_timeCurrent_valueChanged(int v);
-	void on_sliderZoom_valueChanged(int v);
+	void on_sliderZoomLHS_valueChanged(int v);
 	void on_sliderZoomRHS_valueChanged(int v);
 	void on_player_durationChanged(qint64 d);
 	void on_player_positionChanged(qint64 p);
