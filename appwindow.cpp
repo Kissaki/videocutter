@@ -328,10 +328,15 @@ void AppWindow::keyPressEvent(QKeyEvent *key)
 	{
 		FilenameDialog d(currentFile, this);
 		if (d.exec() == QDialog::Accepted) {
-			QFile f(currentFile);
-			auto newPath = d.getNewFilename();
-			qDebug() << "Renaming " << currentFile << " to " << newPath;
-			f.rename(newPath);
+			auto oldPath = currentFile;
+
+			setFilepath(QLatin1String());
+
+			QFileInfo fi(oldPath);
+			QString newPath = fi.canonicalPath() + QDir::separator() + d.getNewFilename();
+			QFile f(oldPath);
+			bool success = f.rename(newPath);
+			qDebug() << "Renaming " << oldPath << " to " << newPath << "; Success: " << success;
 			setFilepath(newPath);
 		}
 	}

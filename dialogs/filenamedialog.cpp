@@ -2,20 +2,18 @@
 #include "ui_filenamedialog.h"
 
 #include <QFile>
-#include <QUrl>
+#include <QFileInfo>
 
 FilenameDialog::FilenameDialog(QString filename, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::FilenameDialog),
-    filename(filename)
+    ui(new Ui::FilenameDialog)
 {
 	ui->setupUi(this);
-//	QFile f(filename);
-//	ui->leFilename->setText(f.fileName());
-	QUrl u = QUrl::fromLocalFile(filename);
-	ui->leFilename->setText(u.fileName());
-	ui->leFilename->setCursorPosition(filename.lastIndexOf('.'));
-	ui->leFilename->setCursorPosition(-1);
+	QFileInfo fi(filename);
+	auto fn = fi.fileName();
+	ui->leFilename->setText(fn);
+	// Place cursor before file extension dot separator.
+	ui->leFilename->setCursorPosition(fn.lastIndexOf('.'));
 }
 
 FilenameDialog::~FilenameDialog()
@@ -25,8 +23,12 @@ FilenameDialog::~FilenameDialog()
 
 void FilenameDialog::accept()
 {
-	auto url = QUrl::fromLocalFile(filename);
-	filename = url.path() + ui->leFilename->text();
+	filename = ui->leFilename->text();
+	if (filename.isEmpty())
+	{
+		QDialog::reject();
+		return;
+	}
 
 	QDialog::accept();
 }
