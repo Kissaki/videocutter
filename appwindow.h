@@ -2,10 +2,6 @@
 #define APPWINDOW_H
 
 #include <QMainWindow>
-#include <QVideoWidget>
-#include <QFile>
-#include <QProcess>
-#include "markings.h"
 
 namespace Ui { class AppWindow; }
 class QMediaPlayer;

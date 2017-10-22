@@ -2,6 +2,7 @@
 #include "ui_appwindow.h"
 
 #include <QDoubleSpinBox>
+#include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -18,7 +19,9 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QMediaPlayer>
 
+#include "markings.h"
 #include "dialogs/filenamedialog.h"
 #include "markingswidget.h"
 #include "exportprocessor.h"
