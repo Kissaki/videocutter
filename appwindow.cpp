@@ -13,6 +13,7 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
+#include <QString>
 #include <QSystemTrayIcon>
 #include <QTextEdit>
 #include <QVideoWidget>
