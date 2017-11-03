@@ -97,11 +97,6 @@ void AppWindow::onPlayRange(int timeStartMS, int timeEndMS)
 	player->play();
 }
 
-void AppWindow::on_markinsWidget_ffmpegParametersChanged(QString parameters)
-{
-
-}
-
 void AppWindow::setupMediaPlayer()
 {
 	auto playlist = new QMediaPlaylist(player);

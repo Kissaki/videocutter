@@ -56,7 +56,6 @@ private slots:
 	void on_playerSkipBackward_clicked();
 	void on_playerSkipForward_clicked();
 	void onPlayRange(int timeStartMS, int timeEndMS);
-	void on_markinsWidget_ffmpegParametersChanged(QString parameters);
 	void on_exportProcessor_statusInfo(QString s);
 	void on_exportProcessor_finished(QString target, int sizeMB);
 
