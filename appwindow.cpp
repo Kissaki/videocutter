@@ -345,7 +345,7 @@ void AppWindow::keyPressEvent(QKeyEvent *key)
 		if (res == QMessageBox::Yes)
 		{
 			auto oldPath = currentFile;
-			setFilepath(QLatin1String());
+			setFilepath(QString());
 			QFile f(oldPath);
 			bool success = f.remove();
 			qDebug() << "Removing file " << oldPath << "; Success: " << success;
