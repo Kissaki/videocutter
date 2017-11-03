@@ -10,6 +10,13 @@ QT       += core gui multimedia multimediawidgets
 unix {
     QMAKE_CXXFLAGS += -std=c++11 -Werror
 }
+win32-g++ {
+    QMAKE_CXXFLAGS += -Werror
+}
+win32-msvc*{
+    QMAKE_CXXFLAGS += /WX
+    QMAKE_CXXFLAGS_WARN_ON *= -W3
+}
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
