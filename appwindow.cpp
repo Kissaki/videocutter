@@ -13,7 +13,6 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
-#include <QString>
 #include <QSystemTrayIcon>
 #include <QTextEdit>
 #include <QVideoWidget>
@@ -327,7 +326,7 @@ void AppWindow::keyPressEvent(QKeyEvent *key)
 		if (d.exec() == QDialog::Accepted) {
 			auto oldPath = currentFile;
 
-			setFilepath(QLatin1String());
+			setFilepath(QString());
 
 			QFileInfo fi(oldPath);
 			QString newPath = fi.canonicalPath() + QDir::separator() + d.getNewFilename();
