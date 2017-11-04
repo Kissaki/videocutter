@@ -2,6 +2,7 @@
 
 #include <QLineEdit>
 #include <QDebug>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QTextEdit>
 #include "markings.h"
