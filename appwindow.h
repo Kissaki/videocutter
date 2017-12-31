@@ -60,6 +60,8 @@ private slots:
 	void on_exportProcessor_finished(QString target, int sizeMB);
 
 private:
+	static const int DEFAULT_UI_NOTIFY_RATE = 200;
+
 	Ui::AppWindow* ui;
 	int skipDistance;
 	QSystemTrayIcon* tray;

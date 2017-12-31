@@ -57,7 +57,7 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	ui->playerVolume->setValue(player->volume());
 	ui->uiNotifyRate->setRange(100, 1000);
 	ui->uiNotifyRate->setSingleStep(100);
-	ui->uiNotifyRate->setValue(1000);
+	ui->uiNotifyRate->setValue(DEFAULT_UI_NOTIFY_RATE);
 
 	ui->timeLow->setRange(0, 0);
 	ui->timeHigh->setRange(0, 0);
