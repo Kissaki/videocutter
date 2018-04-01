@@ -33,7 +33,6 @@ private slots:
 
 private:
 	QProcess* extractProcess;
-	ExportProcessor* exportProcessor;
 	QString ffmpegParameters;
 	QString outPath;
 
