@@ -30,7 +30,8 @@ void ExportProcessor::exportMark(const QString& inPath, const Mark& mark)
 	}
 	qDebug() << "Starting extraction...";
 
-	auto cmd = "ffmpeg -y " + getFfmpegExtractArgs(mark, inPath);
+	outPath = getExtractTargetPath(inPath, mark);
+	auto cmd = "ffmpeg -y " + getFfmpegExtractArgs(mark, inPath, outPath);
 	emit starting(cmd);
 	extractProcess->start(cmd);
 }
@@ -87,14 +88,13 @@ QString ExportProcessor::getCmdInArgs(QString inPath, const std::vector<Mark> ma
 	return out;
 }
 
-QString ExportProcessor::getFfmpegExtractArgs(const Mark& mark, const QString& sourceFilePath)
+QString ExportProcessor::getFfmpegExtractArgs(const Mark& mark, const QString& sourceFilePath, const QString& targetFilePath)
 {
-	outPath = sourceFilePath + "_" + QString::number(mark.start) + "-" + QString::number(mark.end) + ".mp4";
 	// https://ffmpeg.org/ffmpeg.html#Main-options
 	return QString("%1 %4 \"%9\"")
 			.arg(getCmdInArgs(sourceFilePath, mark))
 			.arg(ffmpegParameters)
-			.arg(outPath)
+			.arg(targetFilePath)
 			;
 }
 
@@ -112,6 +112,11 @@ QString ExportProcessor::getFfmpegConcatArgs(const std::vector<Mark>& marks, QSt
 			.arg(options)
 			.arg(outPath)
 			;
+}
+
+QString ExportProcessor::getExtractTargetPath(const QString& sourceFilePath, const Mark& mark)
+{
+	return sourceFilePath + "_" + QString::number(mark.start) + "-" + QString::number(mark.end) + ".mp4";
 }
 
 void ExportProcessor::abort()

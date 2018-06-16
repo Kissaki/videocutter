@@ -243,5 +243,7 @@ void MarkersModel::setFfmpegParameters(const QString& parameters)
 
 QString MarkersModel::getFfmpegCmd(int row)
 {
-	return exportProcessor->getFfmpegExtractArgs(m.at(row), currentFile);
+	auto mark = m.at(row);
+	auto targetFilePath = exportProcessor->getExtractTargetPath(currentFile, mark);
+	return exportProcessor->getFfmpegExtractArgs(mark, currentFile, targetFilePath);
 }

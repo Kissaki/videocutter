@@ -13,8 +13,9 @@ class ExportProcessor : public QObject
 public:
 	explicit ExportProcessor(QObject *parent = 0);
 
-	QString getFfmpegExtractArgs(const Mark& mark, const QString& inPath);
+	QString getFfmpegExtractArgs(const Mark& mark, const QString& inPath, const QString& targetFilePath);
 	QString getFfmpegConcatArgs(const std::vector<Mark>& marks, QString inPath);
+	QString getExtractTargetPath(const QString& sourceFilePath, const Mark& mark);
 	void setFfmpegParameters(const QString& parameters);
 	void exportMark(const QString& inPath, const Mark& mark);
 	void exportConcat(const QString& inPath, const std::vector<Mark> marks);
