@@ -77,6 +77,11 @@ void MarkingsWidget::on_add5s_clicked()
 
 void MarkingsWidget::on_save_clicked()
 {
+	save();
+}
+
+void MarkingsWidget::save()
+{
 	markersModel->save();
 }
 

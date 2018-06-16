@@ -32,6 +32,7 @@ signals:
 	void ffmpegParametersChanged(QString parameters);
 
 public slots:
+	void save();
 
 private slots:
 	void on_add_clicked();

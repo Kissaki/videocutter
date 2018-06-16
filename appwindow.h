@@ -77,6 +77,7 @@ private:
 	void dragEnterEvent(QDragEnterEvent *event) override;
 	void dropEvent(QDropEvent *event) override;
 	void keyPressEvent(QKeyEvent *key) override;
+	void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // APPWINDOW_H

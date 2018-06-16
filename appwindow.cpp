@@ -352,3 +352,9 @@ void AppWindow::keyPressEvent(QKeyEvent *key)
 		}
 	}
 }
+
+void AppWindow::closeEvent(QCloseEvent *event)
+{
+	ui->markinsWidget->save();
+	QMainWindow::closeEvent(event);
+}
