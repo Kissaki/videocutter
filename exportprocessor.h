@@ -18,6 +18,7 @@ public:
 	void setFfmpegParameters(const QString& parameters);
 	void exportMark(const QString& inPath, const Mark& mark);
 	void exportConcat(const QString& inPath, const std::vector<Mark> marks);
+	bool isActive();
 
 signals:
 	void starting(QString command);
@@ -25,6 +26,7 @@ signals:
 	void finished(QString target, int sizeMB);
 
 public slots:
+	void abort();
 
 private slots:
 	void on_extractProcess_readyReadStandardError();

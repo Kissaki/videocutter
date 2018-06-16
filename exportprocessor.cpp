@@ -50,6 +50,11 @@ void ExportProcessor::exportConcat(const QString& inPath, const std::vector<Mark
 	extractProcess->start(cmd);
 }
 
+bool ExportProcessor::isActive()
+{
+	return extractProcess->state() != QProcess::NotRunning;
+}
+
 // https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax
 QString ExportProcessor::getCmdTimeArgs(const Mark& mark)
 {
@@ -107,6 +112,11 @@ QString ExportProcessor::getFfmpegConcatArgs(const std::vector<Mark>& marks, QSt
 			.arg(options)
 			.arg(outPath)
 			;
+}
+
+void ExportProcessor::abort()
+{
+	extractProcess->terminate();
 }
 
 void ExportProcessor::on_extractProcess_readyReadStandardError()

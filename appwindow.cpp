@@ -356,5 +356,17 @@ void AppWindow::keyPressEvent(QKeyEvent *key)
 void AppWindow::closeEvent(QCloseEvent *event)
 {
 	ui->markinsWidget->save();
+
+	if (exportProcessor->isActive())
+	{
+		auto userChoice = QMessageBox::question(this, tr("Export in progress"), tr("An export is still in progress. Are you sure you want to close the application now instead of waiting for the export to finish?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+		if (userChoice == QMessageBox::No)
+		{
+			event->ignore();
+			return;
+		}
+		exportProcessor->abort();
+	}
+
 	QMainWindow::closeEvent(event);
 }
