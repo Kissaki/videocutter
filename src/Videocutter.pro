@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 VERSION=1.0.0
+RC_ICONS = app.ico
 
 QT       += core gui multimedia multimediawidgets
 
