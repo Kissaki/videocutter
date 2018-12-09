@@ -1,1 +1,12 @@
 *.pro.user*
+/installer/Videocutter-Installer.exe
+/3rd-party
+/src/Makefile
+/src/Makefile.Debug
+/src/Makefile.Release
+/src/release
+/src/debug
+/installer/packages/de.kcode.videocutter/data
+/src/bin
+/src/ui_*.h
+/src/.qmake.stash

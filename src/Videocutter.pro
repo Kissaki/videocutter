@@ -22,8 +22,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Videocutter
 TEMPLATE = app
-DESTDIR = bin
-OBJECTS_DIR = build
+CONFIG(release, debug|release) {
+	DESTDIR = bin
+}
 
 
 SOURCES += main.cpp\

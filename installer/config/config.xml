@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Videocutter</Name>
+    <Version>0.1.0</Version>
+    <Title>Videocutter Installer</Title>
+    <Publisher>Jan Klass</Publisher>
+    <StartMenuDir>Videocutter</StartMenuDir>
+    <TargetDir>@ApplicationsDirX64@/Videocutter</TargetDir>
+</Installer>
