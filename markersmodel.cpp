@@ -15,10 +15,7 @@ MarkersModel::MarkersModel(ExportProcessor* expProc, QObject* parent)
 
 void MarkersModel::setFile(QString file)
 {
-	if (!currentFile.isNull() && (!m.empty() || getNewCurrentStorageFile()->exists()))
-	{
-		save();
-	}
+	save();
 
 	currentFile = file;
 	QFile f(file);
@@ -30,12 +27,33 @@ void MarkersModel::setFile(QString file)
 
 QSharedPointer<QFile> MarkersModel::getNewCurrentStorageFile()
 {
+	if (currentFile.isNull())
+	{
+		return QSharedPointer<QFile>::create();
+	}
 	return QSharedPointer<QFile>::create(currentFile + ".markings.json");
 }
 
 void MarkersModel::save()
 {
 	auto f = getNewCurrentStorageFile();
+	if (f.isNull())
+	{
+		return;
+	}
+
+	if (m.isEmpty())
+	{
+		if (f->exists())
+		{
+			if (!f->remove())
+			{
+				qDebug() << "Failed to remove file" << f->fileName();
+			}
+		}
+		return;
+	}
+
 	if (f->exists())
 	{
 		qDebug() << "Overwriting file" << f->fileName();
