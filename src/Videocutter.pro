@@ -5,6 +5,9 @@
 #-------------------------------------------------
 
 VERSION=1.0.0
+QMAKE_TARGET_COMPANY = Jan Klass
+QMAKE_TARGET_PRODUCT = Videocutter
+QMAKE_TARGET_DESCRIPTION = A video cutter for marking, extracting and combining video scenes.
 RC_ICONS = app.ico
 
 QT       += core gui multimedia multimediawidgets
