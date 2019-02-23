@@ -97,7 +97,7 @@ void MarkingsWidget::on_concat_clicked()
 
 void MarkingsWidget::onSelectionChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
-	ui->outFfmpeg->setText(markersModel->getFfmpegCmd(current.row()));
+	ui->outFfmpeg->setText(current.isValid() ? markersModel->getFfmpegCmd(current.row()) : QString());
 }
 
 void MarkingsWidget::on_ffmpegParameters_currentTextChanged(const QString& text)
