@@ -89,6 +89,7 @@ void AppWindow::openFile(const QString& newFile)
 	qDebug() << "opening file" << newFile;
 
 	currentFile = newFile;
+	setWindowTitle(currentFile.isEmpty() ? QString("VideoCutter") : QString("VideoCutter - %1").arg(QFileInfo(currentFile).fileName()));
 	ui->markinsWidget->setFile(currentFile);
 	player->playlist()->clear();
 	player->playlist()->addMedia(QUrl::fromLocalFile(newFile));
