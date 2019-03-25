@@ -28,14 +28,13 @@ public:
 	 * @brief setFilepath opens the file with path newFile
 	 * @param newFile
 	 */
-	void setFilepath(const QString& newFile);
+	void openFile(const QString& newFile);
 
 signals:
 
 public slots:
 
 private slots:
-	void on_openFile_clicked();
 	void on_timeLow_valueChanged(int v);
 	void on_timeHigh_valueChanged(int v);
 	void on_timeCurrent_valueChanged(int v);
@@ -58,6 +57,9 @@ private slots:
 	void onPlayRange(int timeStartMS, int timeEndMS);
 	void on_exportProcessor_statusInfo(QString s);
 	void on_exportProcessor_finished(QString target, int sizeMB);
+	void on_action_Open_triggered();
+	void on_actionNext_triggered();
+	void on_actionPrevious_triggered();
 
 private:
 	static const int DEFAULT_UI_NOTIFY_RATE = 200;
@@ -73,6 +75,7 @@ private:
 
 	void setupMediaPlayer();
 	void resetPlayerControls();
+	void closeFile();
 
 	void dragEnterEvent(QDragEnterEvent *event) override;
 	void dropEvent(QDropEvent *event) override;

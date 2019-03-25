@@ -72,12 +72,21 @@ AppWindow::AppWindow(QSystemTrayIcon* tray, QWidget *parent)
 	ui->playerVolume->setValue(60);
 }
 
-void AppWindow::setFilepath(const QString& newFile)
+void AppWindow::closeFile()
 {
-	qDebug() << "opening file" << newFile;
-
+	qDebug() << "closing file…";
 	player->stop();
 	resetPlayerControls();
+	currentFile = QString();
+	ui->markinsWidget->setFile(currentFile);
+	player->playlist()->clear();
+}
+
+void AppWindow::openFile(const QString& newFile)
+{
+	closeFile();
+
+	qDebug() << "opening file" << newFile;
 
 	currentFile = newFile;
 	ui->markinsWidget->setFile(currentFile);
@@ -114,19 +123,6 @@ void AppWindow::resetPlayerControls()
 	ui->sliderZoomLHS->setMaximum(0);
 	ui->sliderZoomRHS->setMaximum(0);
 	ui->sliderTime->setRange(0, 0);
-}
-
-void AppWindow::on_openFile_clicked()
-{
-	auto newFilePath = QFileDialog::getOpenFileName(
-				this,
-				tr("Open Image"),
-				QString(),
-				tr("Video Files (*.mp4 *.mkv *.avi *.wmv)"));
-	if (!newFilePath.isEmpty())
-	{
-		setFilepath(newFilePath);
-	}
 }
 
 void AppWindow::on_exportProcessor_statusInfo(QString s)
@@ -314,7 +310,7 @@ void AppWindow::dropEvent(QDropEvent *event)
 	auto p = urls.first().toLocalFile();
 	if (QFile::exists(p))
 	{
-		setFilepath(p);
+		openFile(p);
 	}
 }
 
@@ -326,14 +322,14 @@ void AppWindow::keyPressEvent(QKeyEvent *key)
 		if (d.exec() == QDialog::Accepted) {
 			auto oldPath = currentFile;
 
-			setFilepath(QString());
+			closeFile();
 
 			QFileInfo fi(oldPath);
 			QString newPath = fi.canonicalPath() + QDir::separator() + d.getNewFilename();
 			QFile f(oldPath);
 			bool success = f.rename(newPath);
 			qDebug() << "Renaming " << oldPath << " to " << newPath << "; Success: " << success;
-			setFilepath(newPath);
+			openFile(newPath);
 		}
 	}
 	else if (key->key() == Qt::Key_Delete)
@@ -345,7 +341,7 @@ void AppWindow::keyPressEvent(QKeyEvent *key)
 		if (res == QMessageBox::Yes)
 		{
 			auto oldPath = currentFile;
-			setFilepath(QString());
+			openFile(QString());
 			QFile f(oldPath);
 			bool success = f.remove();
 			qDebug() << "Removing file " << oldPath << "; Success: " << success;
@@ -369,4 +365,61 @@ void AppWindow::closeEvent(QCloseEvent *event)
 	}
 
 	QMainWindow::closeEvent(event);
+}
+
+void AppWindow::on_action_Open_triggered()
+{
+	auto newFilePath = QFileDialog::getOpenFileName(
+	            this,
+	            tr("Open video file"),
+	            QString(),
+	            tr("Video Files (*.mp4 *.mkv *.avi *.wmv)"));
+	if (!newFilePath.isEmpty())
+	{
+		openFile(newFilePath);
+	}
+}
+
+void AppWindow::on_actionNext_triggered()
+{
+	auto fi = new QFileInfo(currentFile);
+	auto files = fi->dir().entryInfoList(QDir::Filter::Files);
+	auto found = false;
+	for (QFileInfo f : files) {
+		if (found) {
+			openFile(f.absoluteFilePath());
+			return;
+		}
+		if (f.absoluteFilePath() == currentFile) {
+			found = true;
+		}
+	}
+}
+
+void AppWindow::on_actionPrevious_triggered()
+{
+	auto fi = new QFileInfo(currentFile);
+	auto files = fi->dir().entryInfoList(QDir::Filter::Files);
+
+	auto hasPrevious = false;
+	QFileInfo previous;
+	for (QFileInfo f : files) {
+		if (f.absoluteFilePath() == currentFile) {
+			if (hasPrevious){
+				openFile(previous.absoluteFilePath());
+				return;
+			} else if (!files.isEmpty()) {
+				openFile(files.last().absoluteFilePath());
+				return;
+			}
+			// No previous file to load. Reload existing one.
+			openFile(currentFile);
+			return;
+		}
+		hasPrevious = true;
+		previous = f;
+	}
+	// No previous file to load. Reload existing one.
+	openFile(currentFile);
+	return;
 }
