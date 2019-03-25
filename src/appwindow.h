@@ -57,7 +57,9 @@ private slots:
 	void onPlayRange(int timeStartMS, int timeEndMS);
 	void on_exportProcessor_statusInfo(QString s);
 	void on_exportProcessor_finished(QString target, int sizeMB);
+	void on_actionDelete_Next_triggered();
 	void on_action_Open_triggered();
+	void on_actionDelete_triggered();
 	void on_actionNext_triggered();
 	void on_actionPrevious_triggered();
 
@@ -76,6 +78,8 @@ private:
 	void setupMediaPlayer();
 	void resetPlayerControls();
 	void closeFile();
+	bool loadNextFile();
+	void deleteFile(const QString& file);
 
 	void dragEnterEvent(QDragEnterEvent *event) override;
 	void dropEvent(QDropEvent *event) override;

@@ -367,6 +367,27 @@ void AppWindow::closeEvent(QCloseEvent *event)
 	QMainWindow::closeEvent(event);
 }
 
+void AppWindow::on_actionDelete_Next_triggered()
+{
+	auto fileToDelete = currentFile;
+	if (!loadNextFile()) {
+		closeFile();
+	}
+	deleteFile(fileToDelete);
+}
+
+void AppWindow::deleteFile(const QString& path)
+{
+	if (path.isEmpty())
+	{
+		qDebug() << "Delete called with no file active.";
+		return;
+	}
+	if (!QFile::remove(path)) {
+		qDebug() << "Failed to remove file " << path;
+	}
+}
+
 void AppWindow::on_action_Open_triggered()
 {
 	auto newFilePath = QFileDialog::getOpenFileName(
@@ -378,6 +399,30 @@ void AppWindow::on_action_Open_triggered()
 	{
 		openFile(newFilePath);
 	}
+}
+
+void AppWindow::on_actionDelete_triggered()
+{
+	auto fileToDelete = currentFile;
+	closeFile();
+	deleteFile(fileToDelete);
+}
+
+bool AppWindow::loadNextFile()
+{
+	auto fi = new QFileInfo(currentFile);
+	auto files = fi->dir().entryInfoList(QDir::Filter::Files);
+	auto found = false;
+	for (QFileInfo f : files) {
+		if (found) {
+			openFile(f.absoluteFilePath());
+			return true;
+		}
+		if (f.absoluteFilePath() == currentFile) {
+			found = true;
+		}
+	}
+	return false;
 }
 
 void AppWindow::on_actionNext_triggered()

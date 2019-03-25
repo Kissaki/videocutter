@@ -275,6 +275,9 @@
     <addaction name="action_Open"/>
     <addaction name="actionNext"/>
     <addaction name="actionPrevious"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete"/>
+    <addaction name="actionDelete_Next"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -282,6 +285,11 @@
   <action name="action_Open">
    <property name="text">
     <string>&amp;Open</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
    </property>
   </action>
   <action name="actionNext">
@@ -293,6 +301,14 @@
    </property>
    <property name="shortcut">
     <string>PgDown</string>
+   </property>
+  </action>
+  <action name="actionDelete_Next">
+   <property name="text">
+    <string>Delete &amp;&amp; Next</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+D</string>
    </property>
   </action>
   <action name="actionPrevious">
