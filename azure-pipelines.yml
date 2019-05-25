@@ -1,0 +1,37 @@
+jobs:
+- job: Windows
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '3.x'
+      includePreviewVersions: true
+  - task: DotNetCoreCLI@2
+    displayName: Restore
+    inputs:
+      command: restore
+      projects: 'src'
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: build
+      projects: 'src'
+      arguments: '--configuration Release'
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: test
+      projects: 'src'
+      arguments: '--configuration Release'
+  - task: DotNetCoreCLI@2
+    displayName: PublishDotNet
+    inputs:
+      command: publish
+      projects: 'src/Videocutter'
+      publishWebProjects: false
+      modifyOutputPath: false
+      arguments: '--configuration Release --self-contained --runtime win-x64 --output $(Build.ArtifactStagingDirectory)/Videocutter'
+  - task: PublishBuildArtifacts@1
+    displayName: PublishArtifacts
