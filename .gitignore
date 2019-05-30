@@ -11,3 +11,6 @@
 /src/ui_*.h
 /src/.qmake.stash
 /src/Videocutter_resource.rc
+/src-dotnet/.vs/
+/src-dotnet/*/bin/
+/src-dotnet/*/obj/
