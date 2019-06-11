@@ -30,7 +30,7 @@ namespace KCode.Videocutter.Controls
             var fpath = FilePath.LocalPath;
             Filename.Content = fpath;
             var fi = new FileInfo(fpath);
-            Size.Content = fi.Length.ToString("D0");
+            Size.Content = fi.LengthAsHumanString();
             Filename.Content = fi.Name;
         }
 
