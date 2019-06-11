@@ -23,9 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Controls\FileInfoUC.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Update="Controls\FileInfoUC.xaml.cs" />
   </ItemGroup>
 
 </Project>
