@@ -30,22 +30,7 @@ namespace KCode.Videocutter
             cFileInfo.FilePath = new Uri(fpath);
             var fi = new FileInfo(fpath);
             sFilename.Content = fi.Name;
-            sFileSize.Content = FormatFileSize(fi.Length);
-        }
-
-        private static readonly string[] FileSizeMagnitudes = { "B", "KB", "MB", "GB", "TB" };
-
-        private string FormatFileSize(long bytes)
-        {
-            double len = bytes;
-            int order = 0;
-            while (len >= 1024 && order < FileSizeMagnitudes.Length - 1)
-            {
-                ++order;
-                len /= 1024;
-            }
-
-            return $"{ (object)len:0.##} { (object)FileSizeMagnitudes[order]}";
+            sFileSize.Content = fi.LengthAsHumanString();
         }
 
         private void BtnPlay_Click(object sender, RoutedEventArgs e)
