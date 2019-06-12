@@ -37,6 +37,7 @@ namespace KCode.Videocutter
             sFilename.Content = CurrentFile.Name;
             sFileSize.Content = CurrentFile.LengthAsHumanString();
             cMediaElement.Play();
+            IsPlaying = true;
 
             if (CurrentDir != CurrentFile.Directory)
             {
@@ -51,7 +52,7 @@ namespace KCode.Videocutter
             cFilesList.SelectedValue = CurrentFile.Name;
         }
 
-        private void BtnPlayPause_Click(object sender, RoutedEventArgs e) { if (IsPlaying) { cMediaElement.Pause(); IsPlaying = true; } else { cMediaElement.Play(); IsPlaying = false; } }
+        private void BtnPlayPause_Click(object sender, RoutedEventArgs e) { if (IsPlaying) { cMediaElement.Pause(); IsPlaying = false; } else { cMediaElement.Play(); IsPlaying = true; } }
         private void BtnStop_Click(object sender, RoutedEventArgs e) { cMediaElement.Stop(); IsPlaying = false; }
 
         private void MediaElement_Drop(object sender, DragEventArgs e)
