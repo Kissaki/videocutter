@@ -10,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -22,6 +23,7 @@ namespace KCode.Videocutter
         private bool IsPlaying { get; set; }
         private DirectoryInfo CurrentDir { get; set; }
         private FileInfo CurrentFile { get; set; }
+        private MediaTimeline MediaTimeline;
 
         public MainWindow()
         {
@@ -31,12 +33,13 @@ namespace KCode.Videocutter
         public void OpenFile(string fpath)
         {
             Console.WriteLine($"Opening file {fpath}");
-            cMediaElement.Source = new Uri(fpath);
+            MediaTimeline = new MediaTimeline(new Uri(fpath));
+            MediaTimeline.RepeatBehavior = RepeatBehavior.Forever;
+            cMediaElement.Clock = MediaTimeline.CreateClock();
             cFileInfo.FilePath = new Uri(fpath);
             CurrentFile = new FileInfo(fpath);
             sFilename.Content = CurrentFile.Name;
             sFileSize.Content = CurrentFile.LengthAsHumanString();
-            cMediaElement.Play();
             IsPlaying = true;
 
             if (CurrentDir != CurrentFile.Directory)
@@ -44,16 +47,18 @@ namespace KCode.Videocutter
                 CurrentDir = CurrentFile.Directory;
                 var dirFiles = CurrentDir.GetFiles("*.mp4").Select(x => x.Name).OrderBy(x => x);
                 cFilesList.ItemsSource = dirFiles;
-                //foreach (var f in dirFiles)
-                //{
-                //    cFilesList.Items.Clear();
-                //}
             }
             cFilesList.SelectedValue = CurrentFile.Name;
         }
 
-        private void BtnPlayPause_Click(object sender, RoutedEventArgs e) { if (IsPlaying) { cMediaElement.Pause(); IsPlaying = false; } else { cMediaElement.Play(); IsPlaying = true; } }
-        private void BtnStop_Click(object sender, RoutedEventArgs e) { cMediaElement.Stop(); IsPlaying = false; }
+        private ClockController MediaController { get => cMediaElement.Clock.Controller; }
+        private void BtnJumpStart_Click(object sender, RoutedEventArgs e) => MediaController.Seek(TimeSpan.Zero, TimeSeekOrigin.BeginTime);
+        private void Play() { MediaController.Resume(); IsPlaying = true; }
+        private void Pause() { MediaController.Pause(); IsPlaying = false; }
+        private void Stop() { MediaController.Stop(); IsPlaying = false; }
+
+        private void BtnPlayPause_Click(object sender, RoutedEventArgs e) { if (IsPlaying) { Pause(); } else { Play(); } }
+        private void BtnStop_Click(object sender, RoutedEventArgs e) { Stop(); }
 
         private void MediaElement_Drop(object sender, DragEventArgs e)
         {
@@ -85,10 +90,10 @@ namespace KCode.Videocutter
             e.Handled = false;
         }
 
-        private void BtnSkipForward_Click(object sender, RoutedEventArgs e) => JumpSkip(-TimeSpan.FromSeconds(5));
+        private void BtnSkipForward_Click(object sender, RoutedEventArgs e) => JumpSkip(TimeSpan.FromSeconds(5));
         private void BtnSkipBackward_Click(object sender, RoutedEventArgs e) => JumpSkip(-TimeSpan.FromSeconds(3));
         private void JumpSkip(TimeSpan distance) => JumpTo(cMediaElement.Position + distance);
-        private void JumpTo(TimeSpan target) => cMediaElement.Position = TimeSpanValueRangeLimited(target, min: TimeSpan.Zero, max: cMediaElement.NaturalDuration.TimeSpan);
+        private void JumpTo(TimeSpan target) => cMediaElement.Clock.Controller.Seek(TimeSpanValueRangeLimited(target, TimeSpan.Zero, cMediaElement.Clock.NaturalDuration.TimeSpan), System.Windows.Media.Animation.TimeSeekOrigin.BeginTime);
         private TimeSpan TimeSpanValueRangeLimited(TimeSpan value, TimeSpan min, TimeSpan max) => value > max ? max : (value < min ? min : value);
 
         private void CFilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
