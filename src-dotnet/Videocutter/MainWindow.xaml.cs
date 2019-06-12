@@ -33,6 +33,7 @@ namespace KCode.Videocutter
             var fi = new FileInfo(fpath);
             sFilename.Content = fi.Name;
             sFileSize.Content = fi.LengthAsHumanString();
+            cMediaElement.Play();
         }
 
         private void BtnPlayPause_Click(object sender, RoutedEventArgs e) { if (IsPlaying) { cMediaElement.Pause(); IsPlaying = true; } else { cMediaElement.Play(); IsPlaying = false; } }
