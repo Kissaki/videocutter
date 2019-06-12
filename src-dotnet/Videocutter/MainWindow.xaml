@@ -32,8 +32,7 @@
             <StackPanel Grid.Column="1" Grid.Row="1">
                 <WrapPanel HorizontalAlignment="Center">
                     <Button Name="btnSkipBackward" Click="BtnSkipBackward_Click" Padding="4,2">bck</Button>
-                    <Button Name="btnPlay" Click="BtnPlay_Click" Padding="4,2">Play</Button>
-                    <Button Name="btnPause" Margin="5,0" Click="BtnPause_Click" Padding="4,2">Pause</Button>
+                    <Button Name="btnPlayPause" Click="BtnPlayPause_Click" Padding="4,2">Play/Pause</Button>
                     <Button Name="btnStop" Click="BtnStop_Click" Padding="4,2">Stop</Button>
                     <Button Name="btnSkipForward" Click="BtnSkipForward_Click" Padding="4,2">fwd</Button>
                 </WrapPanel>

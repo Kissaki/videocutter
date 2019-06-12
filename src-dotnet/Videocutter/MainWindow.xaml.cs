@@ -18,6 +18,8 @@ namespace KCode.Videocutter
 {
     public partial class MainWindow : Window
     {
+        private bool IsPlaying { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -33,20 +35,8 @@ namespace KCode.Videocutter
             sFileSize.Content = fi.LengthAsHumanString();
         }
 
-        private void BtnPlay_Click(object sender, RoutedEventArgs e)
-        {
-            cMediaElement.Play();
-        }
-
-        private void BtnPause_Click(object sender, RoutedEventArgs e)
-        {
-            cMediaElement.Pause();
-        }
-
-        private void BtnStop_Click(object sender, RoutedEventArgs e)
-        {
-            cMediaElement.Stop();
-        }
+        private void BtnPlayPause_Click(object sender, RoutedEventArgs e) { if (IsPlaying) { cMediaElement.Pause(); IsPlaying = true; } else { cMediaElement.Play(); IsPlaying = false; } }
+        private void BtnStop_Click(object sender, RoutedEventArgs e) { cMediaElement.Stop(); IsPlaying = false; }
 
         private void MediaElement_Drop(object sender, DragEventArgs e)
         {
