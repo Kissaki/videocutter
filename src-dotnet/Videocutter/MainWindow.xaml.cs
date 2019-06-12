@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,10 +25,14 @@ namespace KCode.Videocutter
         private DirectoryInfo CurrentDir { get; set; }
         private FileInfo CurrentFile { get; set; }
         private MediaTimeline MediaTimeline;
+        private Thread UpdateLoopThread;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            UpdateLoopThread = new Thread(UpdateLoop);
+            UpdateLoopThread.Start();
         }
 
         public void OpenFile(string fpath)
@@ -49,9 +54,38 @@ namespace KCode.Videocutter
                 cFilesList.ItemsSource = dirFiles;
             }
             cFilesList.SelectedValue = CurrentFile.Name;
+
+            cMediaElement.MediaOpened += CMediaElement_MediaOpened;
         }
 
-        private ClockController MediaController { get => cMediaElement.Clock.Controller; }
+        private void CMediaElement_MediaOpened(object sender, RoutedEventArgs e)
+        {
+            cPosition.Maximum = cMediaElement.NaturalDuration.TimeSpan.TotalMilliseconds;
+            cFrom.Maximum = cMediaElement.NaturalDuration.TimeSpan.TotalMilliseconds;
+            cTo.Maximum = cMediaElement.NaturalDuration.TimeSpan.TotalMilliseconds;
+        }
+
+        private void UpdateLoop()
+        {
+            while (true)
+            {
+                UpdateSeekers();
+                Thread.Sleep(TimeSpan.FromMilliseconds(200));
+            }
+        }
+
+        private void UpdateSeekers()
+        {
+            if (Clock == null)
+            {
+                return;
+            }
+            Dispatcher.Invoke(() => SetCurrentTime((Clock.CurrentTime ?? TimeSpan.Zero).TotalMilliseconds));
+        }
+        private void SetCurrentTime(double ms) => Dispatcher.Invoke(() => cPosition.Value = ms);
+
+        private MediaClock Clock { get => cMediaElement.Clock; }
+        private ClockController MediaController { get => Clock.Controller; }
         private void BtnJumpStart_Click(object sender, RoutedEventArgs e) => MediaController.Seek(TimeSpan.Zero, TimeSeekOrigin.BeginTime);
         private void Play() { MediaController.Resume(); IsPlaying = true; }
         private void Pause() { MediaController.Pause(); IsPlaying = false; }
