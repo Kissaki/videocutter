@@ -13,12 +13,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Path = System.IO.Path;
 
 namespace KCode.Videocutter
 {
     public partial class MainWindow : Window
     {
         private bool IsPlaying { get; set; }
+        private DirectoryInfo CurrentDir { get; set; }
+        private FileInfo CurrentFile { get; set; }
 
         public MainWindow()
         {
@@ -30,10 +33,22 @@ namespace KCode.Videocutter
             Console.WriteLine($"Opening file {fpath}");
             cMediaElement.Source = new Uri(fpath);
             cFileInfo.FilePath = new Uri(fpath);
-            var fi = new FileInfo(fpath);
-            sFilename.Content = fi.Name;
-            sFileSize.Content = fi.LengthAsHumanString();
+            CurrentFile = new FileInfo(fpath);
+            sFilename.Content = CurrentFile.Name;
+            sFileSize.Content = CurrentFile.LengthAsHumanString();
             cMediaElement.Play();
+
+            if (CurrentDir != CurrentFile.Directory)
+            {
+                CurrentDir = CurrentFile.Directory;
+                var dirFiles = CurrentDir.GetFiles("*.mp4").Select(x => x.Name).OrderBy(x => x);
+                cFilesList.ItemsSource = dirFiles;
+                //foreach (var f in dirFiles)
+                //{
+                //    cFilesList.Items.Clear();
+                //}
+            }
+            cFilesList.SelectedValue = CurrentFile.Name;
         }
 
         private void BtnPlayPause_Click(object sender, RoutedEventArgs e) { if (IsPlaying) { cMediaElement.Pause(); IsPlaying = true; } else { cMediaElement.Play(); IsPlaying = false; } }
@@ -74,5 +89,13 @@ namespace KCode.Videocutter
         private void JumpSkip(TimeSpan distance) => JumpTo(cMediaElement.Position + distance);
         private void JumpTo(TimeSpan target) => cMediaElement.Position = TimeSpanValueRangeLimited(target, min: TimeSpan.Zero, max: cMediaElement.NaturalDuration.TimeSpan);
         private TimeSpan TimeSpanValueRangeLimited(TimeSpan value, TimeSpan min, TimeSpan max) => value > max ? max : (value < min ? min : value);
+
+        private void CFilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cFilesList.SelectedValue != null)
+            {
+                OpenFile(Path.Combine(CurrentDir.FullName, (string)cFilesList.SelectedValue));
+            }
+        }
     }
 }

@@ -22,14 +22,20 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
-                <Rectangle  Fill="Yellow" Width="64" Height="64" AllowDrop="True" Drop="MediaElement_Drop" DragOver="MediaElement_DragOver" />
-                <controls:FileInfoUC x:Name="cFileInfo" />
-            </StackPanel>
+            <Grid Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Rectangle Grid.Row="0" Fill="Yellow" Width="64" Height="64" AllowDrop="True" Drop="MediaElement_Drop" DragOver="MediaElement_DragOver" />
+                <controls:FileInfoUC Grid.Row="1" x:Name="cFileInfo" />
+                <ListBox Grid.Row="2" x:Name="cFilesList" SelectionMode="Single" SelectionChanged="CFilesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"></ListBox>
+            </Grid>
             <Border Grid.Column="1" Grid.Row="0" BorderBrush="Red" BorderThickness="2">
                 <MediaElement x:Name="cMediaElement" LoadedBehavior="Manual" />
             </Border>
-            <StackPanel Grid.Column="1" Grid.Row="1">
+            <StackPanel x:Name="PlayerControls" Grid.Column="1" Grid.Row="1">
                 <WrapPanel HorizontalAlignment="Center">
                     <Button Name="btnSkipBackward" Click="BtnSkipBackward_Click" Padding="4,2">bck</Button>
                     <Button Name="btnPlayPause" Click="BtnPlayPause_Click" Padding="4,2">Play/Pause</Button>
