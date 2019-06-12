@@ -78,16 +78,10 @@ namespace KCode.Videocutter
             e.Handled = false;
         }
 
-        private void BtnSkipForward_Click(object sender, RoutedEventArgs e)
-        {
-            var target = cMediaElement.Position + TimeSpan.FromSeconds(5);
-            cMediaElement.Position = target > cMediaElement.NaturalDuration.TimeSpan ? cMediaElement.NaturalDuration.TimeSpan : target;
-        }
-
-        private void BtnSkipBackward_Click(object sender, RoutedEventArgs e)
-        {
-            var target = cMediaElement.Position - TimeSpan.FromSeconds(3);
-            cMediaElement.Position = target < TimeSpan.Zero ? TimeSpan.Zero : target;
-        }
+        private void BtnSkipForward_Click(object sender, RoutedEventArgs e) => JumpSkip(-TimeSpan.FromSeconds(5));
+        private void BtnSkipBackward_Click(object sender, RoutedEventArgs e) => JumpSkip(-TimeSpan.FromSeconds(3));
+        private void JumpSkip(TimeSpan distance) => JumpTo(cMediaElement.Position + distance);
+        private void JumpTo(TimeSpan target) => cMediaElement.Position = TimeSpanValueRangeLimited(target, min: TimeSpan.Zero, max: cMediaElement.NaturalDuration.TimeSpan);
+        private TimeSpan TimeSpanValueRangeLimited(TimeSpan value, TimeSpan min, TimeSpan max) => value > max ? max : (value < min ? min : value);
     }
 }
