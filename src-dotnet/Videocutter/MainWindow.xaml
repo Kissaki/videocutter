@@ -32,9 +32,7 @@
                 <controls:FileInfoUC Grid.Row="1" x:Name="cFileInfo" />
                 <ListBox Grid.Row="2" x:Name="cFilesList" SelectionMode="Single" SelectionChanged="CFilesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"></ListBox>
             </Grid>
-            <Border Grid.Column="1" Grid.Row="0" BorderBrush="Red" BorderThickness="2">
-                <MediaElement x:Name="cMediaElement" LoadedBehavior="Manual" />
-            </Border>
+            <MediaElement Grid.Column="1" Grid.Row="0" x:Name="cMediaElement" LoadedBehavior="Manual" />
             <StackPanel x:Name="PlayerControls" Grid.Column="1" Grid.Row="1">
                 <WrapPanel HorizontalAlignment="Center">
                     <Button Name="btnSkipBackward" Click="BtnSkipBackward_Click" Padding="4,2">bck</Button>
