@@ -23,11 +23,43 @@ namespace KCode.Videocutter
 {
     public partial class MainWindow : Window
     {
+        //public static readonly DependencyProperty SliceMinProperty = DependencyProperty.Register(nameof(SliceMin), typeof(TimeSpan), typeof(MainWindow), new PropertyMetadata(TimeSpan.Zero));
+        //public static readonly DependencyProperty SliceMaxProperty = DependencyProperty.Register(nameof(SliceMax), typeof(TimeSpan), typeof(MainWindow), new PropertyMetadata(TimeSpan.Zero));
+        public static readonly DependencyProperty SliceMinMsProperty = DependencyProperty.Register(nameof(SliceMinMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
+        public static readonly DependencyProperty SliceMaxMsProperty = DependencyProperty.Register(nameof(SliceMaxMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
+        public static readonly DependencyProperty CurrentPosMsProperty = DependencyProperty.Register(nameof(CurrentPosMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
+
         private bool IsPlaying { get; set; }
         private DirectoryInfo CurrentDir { get; set; }
         private FileInfo CurrentFile { get; set; }
         private MediaTimeline MediaTimeline;
         private Thread UpdateLoopThread;
+
+        //public TimeSpan SliceMin
+        //{
+        //    get { return (TimeSpan)GetValue(SliceMinProperty); }
+        //    set { SetValue(SliceMinProperty, value); }
+        //}
+        //public TimeSpan SliceMax
+        //{
+        //    get { return (TimeSpan)GetValue(SliceMaxProperty); }
+        //    set { SetValue(SliceMaxProperty, value); }
+        //}
+        public double SliceMinMs
+        {
+            get { return (double)GetValue(SliceMinMsProperty); }
+            set { SetValue(SliceMinMsProperty, value); }
+        }
+        public double SliceMaxMs
+        {
+            get { return (double)GetValue(SliceMaxMsProperty); }
+            set { SetValue(SliceMaxMsProperty, value); }
+        }
+        public double CurrentPosMs
+        {
+            get { return (double)GetValue(CurrentPosMsProperty); }
+            set { SetValue(CurrentPosMsProperty, value); }
+        }
 
         public MainWindow()
         {
@@ -44,6 +76,13 @@ namespace KCode.Videocutter
                     FfmpegDownloader.Download();
                 }
             }
+
+            // TODO: Solve this through bindings now
+            //cFrom.ValueChanged += (sender, e) => { if (TimeSpan.FromMilliseconds(cPosition.Minimum) > Clock.CurrentTime.Value) { JumpTo(TimeSpan.FromMilliseconds(cPosition.Minimum)); } };
+            // TODO: Solve this through bindings now
+            //cTo.ValueChanged += (sender, e) => { if (Clock.CurrentTime.Value > TimeSpan.FromMilliseconds(cPosition.Maximum)) { JumpTo(TimeSpan.FromMilliseconds(SliceMaxMs)); } };
+            // TODO: This is currently in conflict with the UpdateLoopThread which auto updates the value according to the current position, but in a separate thread so the value will be outdated because playback went on once the value is changed on the event thread and the change event triggers.
+            //cPosition.ValueChanged += (sender, e) => JumpTo(TimeSpan.FromMilliseconds(cPosition.Value));
         }
 
         public void OpenFile(string fpath)
@@ -85,9 +124,11 @@ namespace KCode.Videocutter
 
         private void CMediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
-            cPosition.Maximum = cMediaElement.NaturalDuration.TimeSpan.TotalMilliseconds;
-            cFrom.Maximum = cMediaElement.NaturalDuration.TimeSpan.TotalMilliseconds;
             cTo.Maximum = cMediaElement.NaturalDuration.TimeSpan.TotalMilliseconds;
+
+            SliceMinMs = 0.0;
+            SliceMaxMs = cTo.Maximum;
+            CurrentPosMs = 0.0;
         }
 
         private void UpdateLoop()
@@ -107,11 +148,11 @@ namespace KCode.Videocutter
             }
             Dispatcher.Invoke(() => SetCurrentTime((Clock.CurrentTime ?? TimeSpan.Zero).TotalMilliseconds));
         }
-        private void SetCurrentTime(double ms) => Dispatcher.Invoke(() => cPosition.Value = ms);
+        private void SetCurrentTime(double ms) => CurrentPosMs = ms;
 
         private MediaClock Clock { get => cMediaElement.Clock; }
         private ClockController MediaController { get => Clock.Controller; }
-        private void BtnJumpStart_Click(object sender, RoutedEventArgs e) => MediaController.Seek(TimeSpan.Zero, TimeSeekOrigin.BeginTime);
+        private void BtnJumpStart_Click(object sender, RoutedEventArgs e) => MediaController.Seek(TimeSpan.FromMilliseconds(SliceMinMs), TimeSeekOrigin.BeginTime);
         private void Play() { MediaController.Resume(); IsPlaying = true; }
         private void Pause() { MediaController.Pause(); IsPlaying = false; }
         private void Stop() { MediaController.Stop(); IsPlaying = false; }
@@ -149,11 +190,14 @@ namespace KCode.Videocutter
             e.Handled = false;
         }
 
-        private void BtnSkipForward_Click(object sender, RoutedEventArgs e) => JumpSkip(TimeSpan.FromSeconds(5));
-        private void BtnSkipBackward_Click(object sender, RoutedEventArgs e) => JumpSkip(-TimeSpan.FromSeconds(3));
-        private void JumpSkip(TimeSpan distance) => JumpTo(cMediaElement.Position + distance);
-        private void JumpTo(TimeSpan target) => cMediaElement.Clock.Controller.Seek(TimeSpanValueRangeLimited(target, TimeSpan.Zero, cMediaElement.Clock.NaturalDuration.TimeSpan), TimeSeekOrigin.BeginTime);
-        private TimeSpan TimeSpanValueRangeLimited(TimeSpan value, TimeSpan min, TimeSpan max) => value > max ? max : (value < min ? min : value);
+        private void BtnSkipForward_Click(object sender, RoutedEventArgs e) => JumpRelative(TimeSpan.FromSeconds(5));
+        private void BtnSkipBackward_Click(object sender, RoutedEventArgs e) => JumpRelative(-TimeSpan.FromSeconds(3));
+        private void JumpRelative(TimeSpan distance) => JumpTo(cMediaElement.Position + distance);
+        private void JumpTo(TimeSpan target) => cMediaElement.Clock.Controller.Seek(TimeSpanValueRangeLimited(target, TimeSpan.FromMilliseconds(SliceMinMs), TimeSpan.FromMilliseconds(SliceMaxMs)), TimeSeekOrigin.BeginTime);
+        private TimeSpan TimeSpanValueRangeLimited(TimeSpan value, TimeSpan min, TimeSpan max)
+        {
+            return value > max ? max : (value < min ? min : value);
+        }
 
         private void CFilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

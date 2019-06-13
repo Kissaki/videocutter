@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:KCode.Videocutter"
         xmlns:controls="clr-namespace:KCode.Videocutter.Controls"
         mc:Ignorable="d"
-        Title="VideoCutter" Height="450" Width="800">
+        Title="VideoCutter" Height="450" Width="800"
+        x:Name="ThisMainWindow"
+        >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -41,14 +43,14 @@
                     <Button Name="btnStop" Click="BtnStop_Click" Padding="4,2">Stop</Button>
                     <Button Name="btnSkipForward" Click="BtnSkipForward_Click" Padding="4,2">fwd</Button>
                 </WrapPanel>
-                <Slider x:Name="cPosition" ToolTip="Current playback position" />
+                <Slider x:Name="cPosition" ToolTip="Current playback position" Value="{Binding ElementName=ThisMainWindow, Path=CurrentPosMs, Mode=OneWay}" Minimum="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=OneWay}" Maximum="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=OneWay}" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Slider Grid.Column="0" x:Name="cFrom" ToolTip="Start of video slice to work with" />
-                    <Slider Grid.Column="1" x:Name="cTo" ToolTip="End of video slice to work with" />
+                    <Slider Grid.Column="0" x:Name="cFrom" ToolTip="Start of video slice to work with" Value="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=TwoWay}" Maximum="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=OneWay}" />
+                    <Slider Grid.Column="1" x:Name="cTo" ToolTip="End of video slice to work with" Value="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=TwoWay, NotifyOnSourceUpdated=True}" Minimum="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=OneWay}" />
                 </Grid>
                 <Button x:Name="btnExport" Click="BtnExport_Click">Export</Button>
             </StackPanel>
