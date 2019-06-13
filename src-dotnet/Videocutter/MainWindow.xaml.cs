@@ -64,8 +64,14 @@ namespace KCode.Videocutter
             }
             cFilesList.SelectedValue = CurrentFile.Name;
 
+            UpdateWindowTitle();
+
             cMediaElement.MediaOpened += CMediaElement_MediaOpened;
         }
+
+        private void UpdateWindowTitle() => Title = "VideoCutter" + TitlePostfix;
+
+        private string TitlePostfix { get => CurrentFile != null ? " - " + CurrentFile.Name + " in " + CurrentDir.FullName : string.Empty; }
 
         private void CMediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
