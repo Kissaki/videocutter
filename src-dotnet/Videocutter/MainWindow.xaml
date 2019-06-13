@@ -41,16 +41,22 @@
                     <Button Name="btnStop" Click="BtnStop_Click" Padding="4,2">Stop</Button>
                     <Button Name="btnSkipForward" Click="BtnSkipForward_Click" Padding="4,2">fwd</Button>
                 </WrapPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Slider x:Name="cFrom" />
-                    <Slider x:Name="cTo" />
-                </StackPanel>
-                <Slider x:Name="cPosition" />
+                <Slider x:Name="cPosition" ToolTip="Current playback position" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Slider Grid.Column="0" x:Name="cFrom" ToolTip="Start of video slice to work with" />
+                    <Slider Grid.Column="1" x:Name="cTo" ToolTip="End of video slice to work with" />
+                </Grid>
+                <Button x:Name="btnExport" Click="BtnExport_Click">Export</Button>
             </StackPanel>
         </Grid>
         <StatusBar Grid.Row="1">
             <StatusBarItem x:Name="sFilename" />
             <StatusBarItem x:Name="sFileSize" />
+            <StatusBarItem x:Name="sStatus" />
         </StatusBar>
     </Grid>
 </Window>

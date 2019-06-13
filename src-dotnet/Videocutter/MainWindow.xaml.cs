@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -58,8 +60,7 @@ namespace KCode.Videocutter
 
             if (CurrentDir != CurrentFile.Directory)
             {
-                CurrentDir = CurrentFile.Directory;
-                var dirFiles = CurrentDir.GetFiles("*.mp4").Select(x => x.Name).OrderBy(x => x);
+                var dirFiles = GetVideoFiles(CurrentFile.Directory);
                 cFilesList.ItemsSource = dirFiles;
             }
             cFilesList.SelectedValue = CurrentFile.Name;
@@ -68,6 +69,15 @@ namespace KCode.Videocutter
 
             cMediaElement.MediaOpened += CMediaElement_MediaOpened;
         }
+
+        private IOrderedEnumerable<string> GetVideoFiles(DirectoryInfo fi)
+        {
+            CurrentDir = CurrentFile.Directory;
+            var dirFiles = CurrentDir.GetFiles().Select(x => x.Name).Where(IsVideoFile).OrderBy(x => x);
+            return dirFiles;
+        }
+
+        private static bool IsVideoFile(string filename) => filename.EndsWith(".mp4") || filename.EndsWith(".mkv");
 
         private void UpdateWindowTitle() => Title = "VideoCutter" + TitlePostfix;
 
@@ -142,7 +152,7 @@ namespace KCode.Videocutter
         private void BtnSkipForward_Click(object sender, RoutedEventArgs e) => JumpSkip(TimeSpan.FromSeconds(5));
         private void BtnSkipBackward_Click(object sender, RoutedEventArgs e) => JumpSkip(-TimeSpan.FromSeconds(3));
         private void JumpSkip(TimeSpan distance) => JumpTo(cMediaElement.Position + distance);
-        private void JumpTo(TimeSpan target) => cMediaElement.Clock.Controller.Seek(TimeSpanValueRangeLimited(target, TimeSpan.Zero, cMediaElement.Clock.NaturalDuration.TimeSpan), System.Windows.Media.Animation.TimeSeekOrigin.BeginTime);
+        private void JumpTo(TimeSpan target) => cMediaElement.Clock.Controller.Seek(TimeSpanValueRangeLimited(target, TimeSpan.Zero, cMediaElement.Clock.NaturalDuration.TimeSpan), TimeSeekOrigin.BeginTime);
         private TimeSpan TimeSpanValueRangeLimited(TimeSpan value, TimeSpan min, TimeSpan max) => value > max ? max : (value < min ? min : value);
 
         private void CFilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -152,5 +162,30 @@ namespace KCode.Videocutter
                 OpenFile(Path.Combine(CurrentDir.FullName, (string)cFilesList.SelectedValue));
             }
         }
+
+        private void BtnExport_Click(object sender, RoutedEventArgs e)
+        {
+            if (!File.Exists("ffmpeg.exe"))
+            {
+                MessageBox.Show("The ffmpeg program could not be found. It is used to export. Can not export.");
+                return;
+            }
+            var fromTimeMs = cFrom.Value;
+            var toTimeMs = cTo.Value;
+            var outPath = GetExtractFilepath((int)fromTimeMs, (int)toTimeMs);
+            var fromS = fromTimeMs / 1000;
+            var toS = toTimeMs / 1000;
+            var extractArguments = @$"-ss {fromS.ToString("N3", CultureInfo.InvariantCulture)} -t {toS.ToString("N3", CultureInfo.InvariantCulture)}";
+            var startArguments = @$"{extractArguments} -i ""{CurrentFile.FullName}"" ""{outPath}""";
+            Debug.WriteLine($"Starting ffmpeg.exe {startArguments}");
+            var p = Process.Start("ffmpeg.exe", startArguments);
+            //p.OutputDataReceived += (sender, e) => sStatus.Content = e.Data;
+            p.OutputDataReceived += (sender, e) => Debug.WriteLine($"ffmpeg.exe says: {e.Data}");
+            //p.OutputDataReceived += (sender, e) => { using var log = File.AppendText("videocutter.log"); log.WriteLine(e.Data); };
+            p.ErrorDataReceived += (sender, e) => Debug.WriteLine($"ffmpeg.exe says ERROR: {e.Data}");
+            p.Exited += (sender, e) => { Debug.WriteLine($"ffmpeg.exe ended with exit code {p.ExitCode}"); p.Dispose(); };
+        }
+
+        private string GetExtractFilepath(int fromMs, int toMs) => CurrentFile.FullName + $"_{fromMs.ToString("D")}-{toMs.ToString("D")}.mp4";
     }
 }
