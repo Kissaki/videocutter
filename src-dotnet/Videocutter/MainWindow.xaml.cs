@@ -33,6 +33,15 @@ namespace KCode.Videocutter
 
             UpdateLoopThread = new Thread(UpdateLoop);
             UpdateLoopThread.Start();
+
+            if (!File.Exists("ffmpeg.exe"))
+            {
+                var wantDownloadRes = MessageBox.Show("The program ffmpeg is required to extract and combine video, but it was not found.\nDo you want to download it now? (This is automated.)\nIf you choose no you will be able to open, view and prepare videos, but not encode them.", "No ffmpeg - download", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (wantDownloadRes == MessageBoxResult.Yes)
+                {
+                    FfmpegDownloader.Download();
+                }
+            }
         }
 
         public void OpenFile(string fpath)
