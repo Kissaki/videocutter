@@ -29,6 +29,12 @@ namespace KCode.Videocutter.ExternalInterfaces
 
         public void ExportSlice(FileInfo sourcefile, Marking marking)
         {
+            if (!File.Exists("ffmpeg.exe"))
+            {
+                MessageBox.Show("The ffmpeg program could not be found. It is used to export. Can not export.");
+                return;
+            }
+
             var startArguments = new FfmpegArguments(sourcefile, marking.StartMs, marking.EndMs);
             if (startArguments.TargetFile.Exists)
             {

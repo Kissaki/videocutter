@@ -238,12 +238,6 @@ namespace KCode.Videocutter
 
         private void BtnExport_Click(object sender, RoutedEventArgs e)
         {
-            if (!File.Exists("ffmpeg.exe"))
-            {
-                MessageBox.Show("The ffmpeg program could not be found. It is used to export. Can not export.");
-                return;
-            }
-
             var slice = new Marking
             {
                 StartMs = (int)cFrom.Value,
