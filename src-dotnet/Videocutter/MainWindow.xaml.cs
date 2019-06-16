@@ -91,6 +91,7 @@ namespace KCode.Videocutter
             }
 
             Ffmpeg.ActiveCountChanged += (sender, e) => Dispatcher.Invoke(() => sStatus.Content = $"Active exports: {Ffmpeg.ActiveCount}");
+            Closed += (sender, e) => { if (CurrentFile != null) { Markings.Save(CurrentFile); }; };
 
             // TODO: Solve this through bindings now
             //cFrom.ValueChanged += (sender, e) => { if (TimeSpan.FromMilliseconds(cPosition.Minimum) > Clock.CurrentTime.Value) { JumpTo(TimeSpan.FromMilliseconds(cPosition.Minimum)); } };
@@ -98,10 +99,30 @@ namespace KCode.Videocutter
             //cTo.ValueChanged += (sender, e) => { if (Clock.CurrentTime.Value > TimeSpan.FromMilliseconds(cPosition.Maximum)) { JumpTo(TimeSpan.FromMilliseconds(SliceMaxMs)); } };
             // TODO: This is currently in conflict with the UpdateLoopThread which auto updates the value according to the current position, but in a separate thread so the value will be outdated because playback went on once the value is changed on the event thread and the change event triggers.
             //cPosition.ValueChanged += (sender, e) => JumpTo(TimeSpan.FromMilliseconds(cPosition.Value));
+
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length == 2)
+            {
+                OpenFile(args[1]);
+            }
+            else if (args.Length > 2)
+            {
+                throw new ArgumentException("Invalid program arguments. Currently only accepts no or a single filepath parameter.");
+            }
         }
 
         public void OpenFile(string fpath)
         {
+            var newPath = new FileInfo(fpath);
+            if (newPath?.FullName == CurrentFile?.FullName)
+            {
+                return;
+            }
+            if (CurrentFile != null)
+            {
+                Markings.Save(CurrentFile);
+            }
+
             Console.WriteLine($"Opening file {fpath}");
             MediaTimeline = new MediaTimeline(new Uri(fpath));
             MediaTimeline.RepeatBehavior = RepeatBehavior.Forever;
@@ -123,7 +144,7 @@ namespace KCode.Videocutter
 
             //Markings.Clear();
             //Markings.AddRange();
-            Markings = Markings.LoadFor(fpath);
+            Markings = Markings.LoadFor(new FileInfo(fpath));
             //cMarkingsList.Markings = Markings.LoadFor(fpath);
         }
 
@@ -166,13 +187,15 @@ namespace KCode.Videocutter
             }
         }
 
+        private int CurrentTimeMsPrecise => (int)(Clock.CurrentTime ?? TimeSpan.Zero).TotalMilliseconds;
+
         private void UpdateSeekers()
         {
             if (Clock == null)
             {
                 return;
             }
-            Dispatcher.Invoke(() => SetCurrentTime((Clock.CurrentTime ?? TimeSpan.Zero).TotalMilliseconds));
+            Dispatcher.Invoke(() => SetCurrentTime(CurrentTimeMsPrecise));
             Dispatcher.Invoke(() => { if (cPosition.Value >= SliceMaxMs) { JumpToStart(); } });
         }
         private void SetCurrentTime(double ms) => CurrentPosMs = ms;
@@ -248,6 +271,7 @@ namespace KCode.Videocutter
 
         private void CMarkingsList_Play(object sender, Controls.MarkingsList.MarkingEventArgs e) => SetSlice(e.Marking);
         private void CMarkingsList_Export(object sender, Controls.MarkingsList.MarkingEventArgs e) => Ffmpeg.ExportSlice(CurrentFile, e.Marking);
-
+        private void CMarkingsList_SetBegin(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.StartMs = CurrentTimeMsPrecise;
+        private void CMarkingsList_SetEnd(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.EndMs = CurrentTimeMsPrecise;
     }
 }

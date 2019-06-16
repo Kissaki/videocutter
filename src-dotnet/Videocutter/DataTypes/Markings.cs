@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace KCode.Videocutter.DataTypes
 {
@@ -10,16 +11,18 @@ namespace KCode.Videocutter.DataTypes
         private static readonly string MarkingsFilenamePostfix = ".markings.json";
         private static readonly Encoding Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
-        public static Markings LoadFor(string filepath)
+        private static FileInfo GetMarkingsFilepathFor(FileInfo videofile) => new FileInfo(videofile.FullName + MarkingsFilenamePostfix);
+
+        public static Markings LoadFor(FileInfo videofile)
         {
-            var path = filepath + MarkingsFilenamePostfix;
-            if (!File.Exists(path))
+            var markingsFile = GetMarkingsFilepathFor(videofile);
+            if (!markingsFile.Exists)
             {
                 return new Markings();
             }
 
             var list = new Markings();
-            var json = File.ReadAllText(path, Encoding);
+            var json = File.ReadAllText(markingsFile.FullName, Encoding);
             var d = JsonDocument.Parse(json);
             var it = d.RootElement.EnumerateArray();
             while (it.MoveNext())
@@ -29,6 +32,21 @@ namespace KCode.Videocutter.DataTypes
             return list;
 
             //return JsonSerializer.Parse<Markings>(json);
+        }
+
+        public void Save(FileInfo videofile)
+        {
+            var markingsFile = GetMarkingsFilepathFor(videofile);
+            if (Count == 0 && markingsFile.Exists)
+            {
+                markingsFile.Delete();
+                return;
+            }
+
+            var json = JsonSerializer.ToString(this);
+            using var stream = markingsFile.OpenWrite();
+            //using var stream = File.OpenWrite(markingsFile.FullName);
+            JsonSerializer.WriteAsync(this, stream).Wait();
         }
     }
 }

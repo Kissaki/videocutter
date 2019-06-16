@@ -1,12 +1,20 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace KCode.Videocutter.DataTypes
 {
-    public class Marking
+    public class Marking : INotifyPropertyChanged
     {
         [JsonPropertyName("start")]
-        public int StartMs { get; set; }
+        public int StartMs { get => startMs; set { startMs = value; OnPropertyChanged(nameof(StartMs)); } }
         [JsonPropertyName("end")]
-        public int EndMs { get; set; }
+        public int EndMs { get => endMs; set { endMs = value; OnPropertyChanged(nameof(EndMs)); } }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private int startMs;
+        private int endMs;
+
+        protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -27,6 +27,8 @@ namespace KCode.Videocutter.Controls
 
         public event EventHandler<MarkingEventArgs> Play;
         public event EventHandler<MarkingEventArgs> Export;
+        public event EventHandler<MarkingEventArgs> SetBegin;
+        public event EventHandler<MarkingEventArgs> SetEnd;
 
         public MarkingsList()
         {
@@ -35,5 +37,7 @@ namespace KCode.Videocutter.Controls
 
         private void Button_Click(object sender, RoutedEventArgs e) => Play?.Invoke(this, new MarkingEventArgs((Marking)cDataGrid.CurrentItem));
         private void Export_Click(object sender, RoutedEventArgs e) => Export?.Invoke(this, new MarkingEventArgs((Marking)cDataGrid.CurrentItem));
+        private void SetBegin_Click(object sender, RoutedEventArgs e) => SetBegin?.Invoke(this, new MarkingEventArgs((Marking)cDataGrid.CurrentItem));
+        private void SetEnd_Click(object sender, RoutedEventArgs e) => SetEnd?.Invoke(this, new MarkingEventArgs((Marking)cDataGrid.CurrentItem));
     }
 }

@@ -55,13 +55,18 @@
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnExport" Click="BtnExport_Click" Padding="4">Export</Button>
                     <Label>From [ms]</Label>
-                    <TextBox x:Name="cFromTextBox" Text="{Binding ElementName=cFrom, Path=Value}" VerticalAlignment="Center" />
+                    <TextBox x:Name="cFromTextBox" Text="{Binding ElementName=cFrom, Path=Value, StringFormat=N0}" VerticalAlignment="Center" IsReadOnly="True" />
                     <Label>To [ms]</Label>
-                    <TextBox x:Name="cToTextBox" Text="{Binding ElementName=cTo, Path=Value}" VerticalAlignment="Center" />
+                    <TextBox x:Name="cToTextBox" Text="{Binding ElementName=cTo, Path=Value, StringFormat=N0}" VerticalAlignment="Center" IsReadOnly="True" />
                     <Label>Maximum</Label>
-                    <TextBox Text="{Binding ElementName=cPosition, Path=Maximum}" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding ElementName=cTo, Path=Maximum}" VerticalAlignment="Center" />
                 </StackPanel>
-                <controls:MarkingsList Height="120" x:Name="cMarkingsList" DataContext="{Binding ElementName=ThisMainWindow, Path=Markings}" Play="CMarkingsList_Play" Export="CMarkingsList_Export" />
+                <controls:MarkingsList Height="120" x:Name="cMarkingsList" DataContext="{Binding ElementName=ThisMainWindow, Path=Markings}"
+                                       Play="CMarkingsList_Play"
+                                       Export="CMarkingsList_Export"
+                                       SetBegin="CMarkingsList_SetBegin"
+                                       SetEnd="CMarkingsList_SetEnd"
+                                       />
             </StackPanel>
         </Grid>
         <StatusBar Grid.Row="1">
