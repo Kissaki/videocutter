@@ -1,4 +1,6 @@
-﻿using System;
+﻿using KCode.Videocutter.DataTypes;
+using KCode.Videocutter.ExternalInterfaces;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -28,6 +30,7 @@ namespace KCode.Videocutter
         public static readonly DependencyProperty SliceMinMsProperty = DependencyProperty.Register(nameof(SliceMinMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
         public static readonly DependencyProperty SliceMaxMsProperty = DependencyProperty.Register(nameof(SliceMaxMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
         public static readonly DependencyProperty CurrentPosMsProperty = DependencyProperty.Register(nameof(CurrentPosMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
+        public static readonly DependencyProperty MarkingsProperty = DependencyProperty.Register("Markings", typeof(Markings), typeof(MainWindow), new PropertyMetadata(new Markings()));
 
         private bool IsPlaying { get; set; }
         private DirectoryInfo CurrentDir { get; set; }
@@ -61,9 +64,19 @@ namespace KCode.Videocutter
             set { SetValue(CurrentPosMsProperty, value); }
         }
 
+        public Markings Markings
+        {
+            get { return (Markings)GetValue(MarkingsProperty); }
+            set { SetValue(MarkingsProperty, value); }
+        }
+
+        private FfmpegInterface Ffmpeg = new FfmpegInterface();
+
         public MainWindow()
         {
             InitializeComponent();
+
+            cMediaElement.MediaOpened += CMediaElement_MediaOpened;
 
             UpdateLoopThread = new Thread(UpdateLoop);
             UpdateLoopThread.Start();
@@ -76,6 +89,8 @@ namespace KCode.Videocutter
                     FfmpegDownloader.Download();
                 }
             }
+
+            Ffmpeg.ActiveCountChanged += (sender, e) => Dispatcher.Invoke(() => sStatus.Content = $"Active exports: {Ffmpeg.ActiveCount}");
 
             // TODO: Solve this through bindings now
             //cFrom.ValueChanged += (sender, e) => { if (TimeSpan.FromMilliseconds(cPosition.Minimum) > Clock.CurrentTime.Value) { JumpTo(TimeSpan.FromMilliseconds(cPosition.Minimum)); } };
@@ -106,7 +121,18 @@ namespace KCode.Videocutter
 
             UpdateWindowTitle();
 
-            cMediaElement.MediaOpened += CMediaElement_MediaOpened;
+            //Markings.Clear();
+            //Markings.AddRange();
+            Markings = Markings.LoadFor(fpath);
+            //cMarkingsList.Markings = Markings.LoadFor(fpath);
+        }
+
+        public void SetSlice(Marking marking = null)
+        {
+            SliceMinMs = marking?.StartMs ?? 0.0;
+            SliceMaxMs = marking?.EndMs ?? cTo.Maximum;
+
+            JumpTo(TimeSpan.FromMilliseconds(SliceMinMs));
         }
 
         private IOrderedEnumerable<string> GetVideoFiles(DirectoryInfo fi)
@@ -147,12 +173,14 @@ namespace KCode.Videocutter
                 return;
             }
             Dispatcher.Invoke(() => SetCurrentTime((Clock.CurrentTime ?? TimeSpan.Zero).TotalMilliseconds));
+            Dispatcher.Invoke(() => { if (cPosition.Value >= SliceMaxMs) { JumpToStart(); } });
         }
         private void SetCurrentTime(double ms) => CurrentPosMs = ms;
 
         private MediaClock Clock { get => cMediaElement.Clock; }
         private ClockController MediaController { get => Clock.Controller; }
-        private void BtnJumpStart_Click(object sender, RoutedEventArgs e) => MediaController.Seek(TimeSpan.FromMilliseconds(SliceMinMs), TimeSeekOrigin.BeginTime);
+        private void BtnJumpStart_Click(object sender, RoutedEventArgs e) => JumpToStart();
+
         private void Play() { MediaController.Resume(); IsPlaying = true; }
         private void Pause() { MediaController.Pause(); IsPlaying = false; }
         private void Stop() { MediaController.Stop(); IsPlaying = false; }
@@ -198,6 +226,7 @@ namespace KCode.Videocutter
         {
             return value > max ? max : (value < min ? min : value);
         }
+        private void JumpToStart() => MediaController.Seek(TimeSpan.FromMilliseconds(SliceMinMs), TimeSeekOrigin.BeginTime);
 
         private void CFilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -214,22 +243,17 @@ namespace KCode.Videocutter
                 MessageBox.Show("The ffmpeg program could not be found. It is used to export. Can not export.");
                 return;
             }
-            var fromTimeMs = cFrom.Value;
-            var toTimeMs = cTo.Value;
-            var outPath = GetExtractFilepath((int)fromTimeMs, (int)toTimeMs);
-            var fromS = fromTimeMs / 1000;
-            var toS = toTimeMs / 1000;
-            var extractArguments = @$"-ss {fromS.ToString("N3", CultureInfo.InvariantCulture)} -t {toS.ToString("N3", CultureInfo.InvariantCulture)}";
-            var startArguments = @$"{extractArguments} -i ""{CurrentFile.FullName}"" ""{outPath}""";
-            Debug.WriteLine($"Starting ffmpeg.exe {startArguments}");
-            var p = Process.Start("ffmpeg.exe", startArguments);
-            //p.OutputDataReceived += (sender, e) => sStatus.Content = e.Data;
-            p.OutputDataReceived += (sender, e) => Debug.WriteLine($"ffmpeg.exe says: {e.Data}");
-            //p.OutputDataReceived += (sender, e) => { using var log = File.AppendText("videocutter.log"); log.WriteLine(e.Data); };
-            p.ErrorDataReceived += (sender, e) => Debug.WriteLine($"ffmpeg.exe says ERROR: {e.Data}");
-            p.Exited += (sender, e) => { Debug.WriteLine($"ffmpeg.exe ended with exit code {p.ExitCode}"); p.Dispose(); };
+
+            var slice = new Marking
+            {
+                StartMs = (int)cFrom.Value,
+                EndMs = (int)cTo.Value,
+            };
+            Ffmpeg.ExportSlice(CurrentFile, slice);
         }
 
-        private string GetExtractFilepath(int fromMs, int toMs) => CurrentFile.FullName + $"_{fromMs.ToString("D")}-{toMs.ToString("D")}.mp4";
+        private void CMarkingsList_Play(object sender, Controls.MarkingsList.MarkingEventArgs e) => SetSlice(e.Marking);
+        private void CMarkingsList_Export(object sender, Controls.MarkingsList.MarkingEventArgs e) => Ffmpeg.ExportSlice(CurrentFile, e.Marking);
+
     }
 }

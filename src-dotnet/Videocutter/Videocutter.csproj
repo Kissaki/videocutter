@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <None Remove="Controls\FileInfoUC.xaml" />
+    <None Remove="Controls\MarkingsList.xaml" />
   </ItemGroup>
 
   <ItemGroup>
