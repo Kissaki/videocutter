@@ -1,4 +1,5 @@
 *.pro.user*
+*.csproj.user*
 /installer/Videocutter-Installer.exe
 /3rd-party
 /src/Makefile
