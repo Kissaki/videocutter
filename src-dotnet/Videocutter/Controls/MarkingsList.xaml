@@ -10,8 +10,8 @@
     <GroupBox Header="Markings">
         <DataGrid x:Name="cDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Start" Binding="{Binding StartMs}" />
-                <DataGridTextColumn Header="End" Binding="{Binding EndMs}" />
+                <DataGridTextColumn Header="Start" Binding="{Binding StartMs, StringFormat=F0}" />
+                <DataGridTextColumn Header="End" Binding="{Binding EndMs, StringFormat=F0}" />
                 <DataGridTemplateColumn Header="Play">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
