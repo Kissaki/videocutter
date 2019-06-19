@@ -25,16 +25,22 @@ namespace KCode.Videocutter
 {
     public partial class MainWindow : Window
     {
+        public static readonly DependencyProperty CurrentFileProperty = DependencyProperty.Register(nameof(CurrentFile), typeof(FileInfo), typeof(MainWindow), new PropertyMetadata());
+        public static readonly DependencyProperty MarkingsProperty = DependencyProperty.Register(nameof(Markings), typeof(Markings), typeof(MainWindow), new PropertyMetadata(new Markings()));
         //public static readonly DependencyProperty SliceMinProperty = DependencyProperty.Register(nameof(SliceMin), typeof(TimeSpan), typeof(MainWindow), new PropertyMetadata(TimeSpan.Zero));
         //public static readonly DependencyProperty SliceMaxProperty = DependencyProperty.Register(nameof(SliceMax), typeof(TimeSpan), typeof(MainWindow), new PropertyMetadata(TimeSpan.Zero));
         public static readonly DependencyProperty SliceMinMsProperty = DependencyProperty.Register(nameof(SliceMinMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
         public static readonly DependencyProperty SliceMaxMsProperty = DependencyProperty.Register(nameof(SliceMaxMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
         public static readonly DependencyProperty CurrentPosMsProperty = DependencyProperty.Register(nameof(CurrentPosMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
-        public static readonly DependencyProperty MarkingsProperty = DependencyProperty.Register("Markings", typeof(Markings), typeof(MainWindow), new PropertyMetadata(new Markings()));
+
+        public FileInfo CurrentFile { get => (FileInfo)GetValue(CurrentFileProperty); set => SetValue(CurrentFileProperty, value); }
+        public Markings Markings { get => (Markings)GetValue(MarkingsProperty); set => SetValue(MarkingsProperty, value); }
+        public double SliceMinMs { get => (double)GetValue(SliceMinMsProperty); set => SetValue(SliceMinMsProperty, value); }
+        public double SliceMaxMs { get => (double)GetValue(SliceMaxMsProperty); set => SetValue(SliceMaxMsProperty, value); }
+        public double CurrentPosMs { get => (double)GetValue(CurrentPosMsProperty); set => SetValue(CurrentPosMsProperty, value); }
 
         private bool IsPlaying { get; set; }
         private DirectoryInfo CurrentDir { get; set; }
-        private FileInfo CurrentFile { get; set; }
         private MediaTimeline MediaTimeline;
         private Thread UpdateLoopThread;
 
@@ -48,27 +54,7 @@ namespace KCode.Videocutter
         //    get { return (TimeSpan)GetValue(SliceMaxProperty); }
         //    set { SetValue(SliceMaxProperty, value); }
         //}
-        public double SliceMinMs
-        {
-            get { return (double)GetValue(SliceMinMsProperty); }
-            set { SetValue(SliceMinMsProperty, value); }
-        }
-        public double SliceMaxMs
-        {
-            get { return (double)GetValue(SliceMaxMsProperty); }
-            set { SetValue(SliceMaxMsProperty, value); }
-        }
-        public double CurrentPosMs
-        {
-            get { return (double)GetValue(CurrentPosMsProperty); }
-            set { SetValue(CurrentPosMsProperty, value); }
-        }
 
-        public Markings Markings
-        {
-            get { return (Markings)GetValue(MarkingsProperty); }
-            set { SetValue(MarkingsProperty, value); }
-        }
 
         private FfmpegInterface Ffmpeg = new FfmpegInterface();
 
@@ -127,7 +113,7 @@ namespace KCode.Videocutter
             MediaTimeline = new MediaTimeline(new Uri(fpath));
             MediaTimeline.RepeatBehavior = RepeatBehavior.Forever;
             cMediaElement.Clock = MediaTimeline.CreateClock();
-            cFileInfo.FilePath = new Uri(fpath);
+            //cFileInfo.FilePath = new Uri(fpath);
             CurrentFile = new FileInfo(fpath);
             sFilename.Content = CurrentFile.Name;
             sFileSize.Content = CurrentFile.LengthAsHumanString();
@@ -273,5 +259,8 @@ namespace KCode.Videocutter
         private void CMarkingsList_Export(object sender, Controls.MarkingsList.MarkingEventArgs e) => Ffmpeg.ExportSlice(CurrentFile, e.Marking);
         private void CMarkingsList_SetBegin(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.StartMs = CurrentTimeMsPrecise;
         private void CMarkingsList_SetEnd(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.EndMs = CurrentTimeMsPrecise;
+        private void BtnAddMarking_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs, EndMs = (int)CurrentPosMs, });
+        private void BtnAddMarking5s_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs - 5000, EndMs = (int)CurrentPosMs, });
+        private void BtnExportAllMarkings_Click(object sender, RoutedEventArgs e) { foreach (var item in Markings) { Ffmpeg.ExportSlice(CurrentFile, item); } }
     }
 }

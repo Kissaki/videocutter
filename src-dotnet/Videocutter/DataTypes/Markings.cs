@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -6,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace KCode.Videocutter.DataTypes
 {
-    public class Markings : List<Marking>
+    public class Markings : ObservableCollection<Marking>
     {
         private static readonly string MarkingsFilenamePostfix = ".markings.json";
         private static readonly Encoding Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
@@ -44,9 +45,12 @@ namespace KCode.Videocutter.DataTypes
             }
 
             var json = JsonSerializer.ToString(this);
-            using var stream = markingsFile.OpenWrite();
-            //using var stream = File.OpenWrite(markingsFile.FullName);
-            JsonSerializer.WriteAsync(this, stream).Wait();
+            var tmp = new FileInfo(markingsFile.FullName + ".new");
+            using (var stream = tmp.OpenWrite())
+            {
+                JsonSerializer.WriteAsync(this, stream).Wait();
+            }
+            tmp.Replace(markingsFile.FullName, destinationBackupFileName: null);
         }
     }
 }

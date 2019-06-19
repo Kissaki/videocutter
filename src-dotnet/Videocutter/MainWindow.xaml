@@ -6,67 +6,96 @@
         xmlns:local="clr-namespace:KCode.Videocutter"
         xmlns:controls="clr-namespace:KCode.Videocutter.Controls"
         mc:Ignorable="d"
-        Title="VideoCutter" Height="450" Width="800"
+        Title="VideoCutter" Height="720" Width="1280"
         x:Name="ThisMainWindow"
         AllowDrop="True" Drop="MediaElement_Drop" DragOver="MediaElement_DragOver"
         >
     <Grid>
         <Grid.RowDefinitions>
+            <!-- Window content -->
             <RowDefinition Height="*" />
+            <!-- Status bar -->
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
+        <Grid>
             <Grid.ColumnDefinitions>
+                <!-- Info sidebar left -->
                 <ColumnDefinition Width="120" />
+                <!-- Splitter -->
+                <ColumnDefinition Width="Auto" />
+                <!-- Main window content -->
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
+            <Grid Grid.Column="0" x:Name="cInfoSidebar">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <controls:FileInfoUC Grid.Row="1" x:Name="cFileInfo" />
-                <ListBox Grid.Row="2" x:Name="cFilesList" SelectionMode="Single" SelectionChanged="CFilesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"></ListBox>
+                <controls:FileInfoUC Grid.Row="0" x:Name="cFileInfo" DataContext="{Binding ElementName=ThisMainWindow, Path=CurrentFile}" />
+                <ListBox Grid.Row="1" x:Name="cFilesList" SelectionMode="Single" SelectionChanged="CFilesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"></ListBox>
             </Grid>
-            <MediaElement Grid.Column="1" Grid.Row="0" x:Name="cMediaElement" LoadedBehavior="Manual" />
-            <StackPanel x:Name="PlayerControls" Grid.Column="1" Grid.Row="1">
-                <WrapPanel HorizontalAlignment="Center">
-                    <Button x:Name="btnJumpStart" Click="BtnJumpStart_Click" Padding="4,2">start</Button>
-                    <Button Name="btnSkipBackward" Click="BtnSkipBackward_Click" Padding="4,2">bck</Button>
-                    <Button Name="btnPlayPause" Click="BtnPlayPause_Click" Padding="4,2">Play/Pause</Button>
-                    <Button Name="btnStop" Click="BtnStop_Click" Padding="4,2">Stop</Button>
-                    <Button Name="btnSkipForward" Click="BtnSkipForward_Click" Padding="4,2">fwd</Button>
-                </WrapPanel>
-                <Slider x:Name="cPosition" ToolTip="Current playback position" Value="{Binding ElementName=ThisMainWindow, Path=CurrentPosMs, Mode=OneWay}" Minimum="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=OneWay}" Maximum="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=OneWay}" />
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Slider Grid.Column="0" x:Name="cFrom" ToolTip="Start of video slice to work with" SmallChange="0.1" LargeChange="10" Value="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=TwoWay}" Maximum="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=OneWay}" />
-                    <Slider Grid.Column="1" x:Name="cTo" ToolTip="End of video slice to work with" SmallChange="0.1" LargeChange="10" Value="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=TwoWay, NotifyOnSourceUpdated=True}" Minimum="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=OneWay}" />
-                </Grid>
-                <StackPanel Orientation="Horizontal">
-                    <Button x:Name="btnExport" Click="BtnExport_Click" Padding="4">Export</Button>
-                    <Label>From [ms]</Label>
-                    <TextBox x:Name="cFromTextBox" Text="{Binding ElementName=cFrom, Path=Value, StringFormat=N0}" VerticalAlignment="Center" IsReadOnly="True" />
-                    <Label>To [ms]</Label>
-                    <TextBox x:Name="cToTextBox" Text="{Binding ElementName=cTo, Path=Value, StringFormat=N0}" VerticalAlignment="Center" IsReadOnly="True" />
-                    <Label>Maximum</Label>
-                    <TextBox Text="{Binding ElementName=cTo, Path=Maximum}" VerticalAlignment="Center" />
-                </StackPanel>
-                <controls:MarkingsList Height="120" x:Name="cMarkingsList" DataContext="{Binding ElementName=ThisMainWindow, Path=Markings}"
+            <GridSplitter Grid.Column="1" Width="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" />
+            <Grid Grid.Column="2" x:Name="cMainWindowContent">
+                <Grid.RowDefinitions>
+                    <!-- Media element -->
+                    <RowDefinition Height="*" />
+                    <!-- Splitter -->
+                    <RowDefinition Height="Auto" />
+                    <!-- Controls -->
+                    <RowDefinition Height="300" />
+                </Grid.RowDefinitions>
+                <MediaElement Grid.Row="0" x:Name="cMediaElement" LoadedBehavior="Manual" />
+                <GridSplitter Grid.Row="1" Height="1" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" />
+                <Grid Grid.Row="2" x:Name="cWorkControls">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <WrapPanel Grid.Row="0" x:Name="cPlayerControls" HorizontalAlignment="Center">
+                        <Button x:Name="btnJumpStart" Click="BtnJumpStart_Click" Padding="4,2">start</Button>
+                        <Button Name="btnSkipBackward" Click="BtnSkipBackward_Click" Padding="4,2">bck</Button>
+                        <Button Name="btnPlayPause" Click="BtnPlayPause_Click" Padding="4,2">Play/Pause</Button>
+                        <Button Name="btnStop" Click="BtnStop_Click" Padding="4,2">Stop</Button>
+                        <Button Name="btnSkipForward" Click="BtnSkipForward_Click" Padding="4,2">fwd</Button>
+                    </WrapPanel>
+                    <Grid Grid.Row="1" x:Name="cSliders">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Slider Grid.Row="0" Grid.ColumnSpan="2" x:Name="cPosition" ToolTip="Current playback position" Value="{Binding ElementName=ThisMainWindow, Path=CurrentPosMs, Mode=OneWay}" Minimum="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=OneWay}" Maximum="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=OneWay}" />
+                        <Slider Grid.Row="1" Grid.Column="0" x:Name="cFrom" ToolTip="Start of video slice to work with" SmallChange="0.1" LargeChange="10" Value="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=TwoWay}" Maximum="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=OneWay}" />
+                        <Slider Grid.Row="1" Grid.Column="1" x:Name="cTo" ToolTip="End of video slice to work with" SmallChange="0.1" LargeChange="10" Value="{Binding ElementName=ThisMainWindow, Path=SliceMaxMs, Mode=TwoWay, NotifyOnSourceUpdated=True}" Minimum="{Binding ElementName=ThisMainWindow, Path=SliceMinMs, Mode=OneWay}" />
+                    </Grid>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <Button x:Name="btnExport" Click="BtnExport_Click" Padding="4">Export</Button>
+                        <Label>From [ms]</Label>
+                        <TextBox x:Name="cFromTextBox" Text="{Binding ElementName=cFrom, Path=Value, StringFormat=N0}" VerticalAlignment="Center" IsReadOnly="True" />
+                        <Label>To [ms]</Label>
+                        <TextBox x:Name="cToTextBox" Text="{Binding ElementName=cTo, Path=Value, StringFormat=N0}" VerticalAlignment="Center" IsReadOnly="True" />
+                        <Label>Maximum</Label>
+                        <TextBox Text="{Binding ElementName=cTo, Path=Maximum}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <controls:MarkingsList Grid.Row="3" x:Name="cMarkingsList" DataContext="{Binding ElementName=ThisMainWindow, Path=Markings}"
                                        Play="CMarkingsList_Play"
                                        Export="CMarkingsList_Export"
                                        SetBegin="CMarkingsList_SetBegin"
                                        SetEnd="CMarkingsList_SetEnd"
                                        />
-            </StackPanel>
+                    <StackPanel Grid.Row="4" Orientation="Horizontal">
+                        <Button Click="BtnAddMarking_Click">Add</Button>
+                        <Button Click="BtnAddMarking5s_Click">Add 5s</Button>
+                        <Button Click="BtnExportAllMarkings_Click">Export all</Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
         </Grid>
         <StatusBar Grid.Row="1">
             <StatusBarItem x:Name="sFilename" />

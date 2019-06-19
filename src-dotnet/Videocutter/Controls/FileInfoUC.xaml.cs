@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KCode.Videocutter.Converter;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -16,23 +17,9 @@ namespace KCode.Videocutter.Controls
 {
     public partial class FileInfoUC : UserControl
     {
-        private Uri FilePathValue;
-        public Uri FilePath { get => FilePathValue; set => SetFilePath(value); }
-
         public FileInfoUC()
         {
             InitializeComponent();
         }
-
-        private void SetFilePath(Uri value)
-        {
-            FilePathValue = value;
-            var fpath = FilePath.LocalPath;
-            Filename.Content = fpath;
-            var fi = new FileInfo(fpath);
-            Size.Content = fi.LengthAsHumanString();
-            Filename.Content = fi.Name;
-        }
-
     }
 }
