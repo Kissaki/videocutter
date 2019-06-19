@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         Title="VideoCutter" Height="450" Width="800"
         x:Name="ThisMainWindow"
+        AllowDrop="True" Drop="MediaElement_Drop" DragOver="MediaElement_DragOver"
         >
     <Grid>
         <Grid.RowDefinitions>
@@ -27,10 +28,8 @@
             <Grid Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Rectangle Grid.Row="0" Fill="Yellow" Width="64" Height="64" AllowDrop="True" Drop="MediaElement_Drop" DragOver="MediaElement_DragOver" />
                 <controls:FileInfoUC Grid.Row="1" x:Name="cFileInfo" />
                 <ListBox Grid.Row="2" x:Name="cFilesList" SelectionMode="Single" SelectionChanged="CFilesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"></ListBox>
             </Grid>
