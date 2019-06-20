@@ -33,6 +33,11 @@ namespace KCode.Videocutter
         public static readonly DependencyProperty SliceMaxMsProperty = DependencyProperty.Register(nameof(SliceMaxMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
         public static readonly DependencyProperty CurrentPosMsProperty = DependencyProperty.Register(nameof(CurrentPosMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
         public static readonly DependencyProperty IsPlayerRepeatOnProperty = DependencyProperty.Register(nameof(IsPlayerRepeatOn), typeof(bool), typeof(MainWindow), new PropertyMetadata(defaultValue: true));
+        public static readonly DependencyProperty IsPlayerMutedProperty = DependencyProperty.Register(nameof(IsPlayerMuted), typeof(bool), typeof(MainWindow), new PropertyMetadata(defaultValue: false));
+        public static readonly DependencyProperty PlayerVolumeProperty = DependencyProperty.Register(nameof(PlayerVolume), typeof(double), typeof(MainWindow), new PropertyMetadata(defaultValue: 0.5));
+        public static readonly DependencyProperty SettingContainerFormatProperty = DependencyProperty.Register(nameof(SettingContainerFormat), typeof(MediaContainerFormat), typeof(MainWindow));
+        public static readonly DependencyProperty SettingVideoCodecProperty = DependencyProperty.Register(nameof(SettingVideoCodec), typeof(MediaVideoCodec), typeof(MainWindow));
+        public static readonly DependencyProperty SettingAudioCodecProperty = DependencyProperty.Register(nameof(SettingAudioCodec), typeof(MediaAudioCodec), typeof(MainWindow));
 
         public FileInfo CurrentFile { get => (FileInfo)GetValue(CurrentFileProperty); set => SetValue(CurrentFileProperty, value); }
         public Markings Markings { get => (Markings)GetValue(MarkingsProperty); set => SetValue(MarkingsProperty, value); }
@@ -40,6 +45,11 @@ namespace KCode.Videocutter
         public double SliceMaxMs { get => (double)GetValue(SliceMaxMsProperty); set => SetValue(SliceMaxMsProperty, value); }
         public double CurrentPosMs { get => (double)GetValue(CurrentPosMsProperty); set => SetValue(CurrentPosMsProperty, value); }
         public bool IsPlayerRepeatOn { get => (bool)GetValue(IsPlayerRepeatOnProperty); set => SetValue(IsPlayerRepeatOnProperty, value); }
+        public bool IsPlayerMuted { get => (bool)GetValue(IsPlayerMutedProperty); set => SetValue(IsPlayerMutedProperty, value); }
+        public double PlayerVolume { get => (double)GetValue(PlayerVolumeProperty); set => SetValue(PlayerVolumeProperty, value); }
+        public MediaContainerFormat SettingContainerFormat { get => (MediaContainerFormat)GetValue(SettingContainerFormatProperty); set => SetValue(SettingContainerFormatProperty, value); }
+        public MediaVideoCodec SettingVideoCodec { get => (MediaVideoCodec)GetValue(SettingVideoCodecProperty); set => SetValue(SettingVideoCodecProperty, value); }
+        public MediaAudioCodec SettingAudioCodec { get => (MediaAudioCodec)GetValue(SettingAudioCodecProperty); set => SetValue(SettingAudioCodecProperty, value); }
 
         private bool IsPlaying { get; set; }
         private DirectoryInfo CurrentDir { get; set; }
@@ -254,15 +264,20 @@ namespace KCode.Videocutter
                 StartMs = (int)cFrom.Value,
                 EndMs = (int)cTo.Value,
             };
-            Ffmpeg.ExportSlice(CurrentFile, slice);
+            ExportSlice(slice);
+        }
+
+        private void ExportSlice(Marking slice)
+        {
+            Ffmpeg.ExportSlice(CurrentFile, slice, SettingContainerFormat, SettingVideoCodec, SettingAudioCodec);
         }
 
         private void CMarkingsList_Play(object sender, Controls.MarkingsList.MarkingEventArgs e) => SetSlice(e.Marking);
-        private void CMarkingsList_Export(object sender, Controls.MarkingsList.MarkingEventArgs e) => Ffmpeg.ExportSlice(CurrentFile, e.Marking);
+        private void CMarkingsList_Export(object sender, Controls.MarkingsList.MarkingEventArgs e) => ExportSlice(e.Marking);
         private void CMarkingsList_SetBegin(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.StartMs = CurrentTimeMsPrecise;
         private void CMarkingsList_SetEnd(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.EndMs = CurrentTimeMsPrecise;
         private void BtnAddMarking_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs, EndMs = (int)CurrentPosMs, });
         private void BtnAddMarking5s_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs - 5000, EndMs = (int)CurrentPosMs, });
-        private void BtnExportAllMarkings_Click(object sender, RoutedEventArgs e) { foreach (var item in Markings) { Ffmpeg.ExportSlice(CurrentFile, item); } }
+        private void BtnExportAllMarkings_Click(object sender, RoutedEventArgs e) { foreach (var item in Markings) { ExportSlice(item); } }
     }
 }

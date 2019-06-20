@@ -4,12 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KCode.Videocutter"
+        xmlns:localConverter="clr-namespace:KCode.Videocutter.Converter"
         xmlns:controls="clr-namespace:KCode.Videocutter.Controls"
         mc:Ignorable="d"
         Title="VideoCutter" Height="720" Width="1280"
         x:Name="ThisMainWindow"
         AllowDrop="True" Drop="MediaElement_Drop" DragOver="MediaElement_DragOver"
         >
+    <Window.Resources>
+        <localConverter:MediaContainerFormatValueConverter x:Key="containerFormatConverter" />
+        <localConverter:MediaVideoCodecValueConverter x:Key="videoCodecConverter" />
+        <localConverter:MediaAudioCodecValueConverter x:Key="audioCodecConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <!-- Window content -->
@@ -30,9 +36,45 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <controls:FileInfoUC Grid.Row="0" x:Name="cFileInfo" DataContext="{Binding ElementName=ThisMainWindow, Path=CurrentFile}" />
                 <ListBox Grid.Row="1" x:Name="cFilesList" SelectionMode="Single" SelectionChanged="CFilesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"></ListBox>
+                <GroupBox Grid.Row="2" Header="Settings">
+                    <StackPanel>
+                        <GroupBox Header="Container Format">
+                            <ComboBox SelectedIndex="{Binding ElementName=ThisMainWindow, Path=SettingContainerFormat, Converter={StaticResource containerFormatConverter}}">
+                                <ComboBoxItem IsSelected="True">From source</ComboBoxItem>
+                                <ComboBoxItem>MP4</ComboBoxItem>
+                                <ComboBoxItem>MKV</ComboBoxItem>
+                                <ComboBoxItem>WEBM</ComboBoxItem>
+                            </ComboBox>
+                        </GroupBox>
+                        <GroupBox Header="Video Codec">
+                            <ComboBox SelectedIndex="{Binding ElementName=ThisMainWindow, Path=SettingVideoCodec, Converter={StaticResource videoCodecConverter}}">
+                                <ComboBoxItem IsSelected="True">From source</ComboBoxItem>
+                                <ComboBoxItem>H265</ComboBoxItem>
+                                <ComboBoxItem>H264</ComboBoxItem>
+                                <ComboBoxItem>VP9</ComboBoxItem>
+                                <ComboBoxItem ToolTip="EXPERIMENTAL AV1 support in ffmpeg is still experimental. The encoding speed is very slow. It may be possible to integrate other encoders to improve this.">AV1</ComboBoxItem>
+                                <ComboBoxItem ToolTip="Copy video without re-encoding (may be inaccurate on slice start and end depending on the source encode)">Copy</ComboBoxItem>
+                                <ComboBoxItem ToolTip="No video">Drop</ComboBoxItem>
+                            </ComboBox>
+                        </GroupBox>
+                        <GroupBox Header="Audio Codec">
+                            <StackPanel>
+                                <ComboBox SelectedIndex="{Binding ElementName=ThisMainWindow, Path=SettingAudioCodec, Converter={StaticResource audioCodecConverter}}">
+                                    <ComboBoxItem IsSelected="True">From source</ComboBoxItem>
+                                    <ComboBoxItem>AAC</ComboBoxItem>
+                                    <ComboBoxItem>Opus</ComboBoxItem>
+                                    <ComboBoxItem>MP3</ComboBoxItem>
+                                    <ComboBoxItem ToolTip="Copy audio without re-encoding (may be inaccurate on slice start and end depending on the source encode)">Copy</ComboBoxItem>
+                                    <ComboBoxItem ToolTip="No audio">Drop</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </GroupBox>
             </Grid>
             <GridSplitter Grid.Column="1" Width="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" />
             <Grid Grid.Column="2" x:Name="cMainWindowContent">
@@ -44,7 +86,7 @@
                     <!-- Controls -->
                     <RowDefinition Height="300" />
                 </Grid.RowDefinitions>
-                <MediaElement Grid.Row="0" x:Name="cMediaElement" LoadedBehavior="Manual" />
+                <MediaElement Grid.Row="0" x:Name="cMediaElement" LoadedBehavior="Manual" IsMuted="{Binding ElementName=ThisMainWindow, Path=IsPlayerMuted}" Volume="{Binding ElementName=ThisMainWindow, Path=PlayerVolume}" />
                 <GridSplitter Grid.Row="1" Height="1" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" />
                 <Grid Grid.Row="2" x:Name="cWorkControls">
                     <Grid.RowDefinitions>
@@ -66,7 +108,10 @@
                         <Button Name="btnSkipForward" Click="BtnSkipForward_Click" MinWidth="60" Margin="4,0" Padding="8,2">⏩</Button>
                         <StackPanel Margin="20,0,0,0" Orientation="Horizontal">
                             <Button Name="btnStop" Click="BtnStop_Click" MinWidth="60" Margin="4,0" Padding="8,2">⏹</Button>
-                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding ElementName=ThisMainWindow, Path=IsPlayerRepeatOn}" ToolTip="Repeat (at the end of the slice playback, jump back to start and continue playback)">🔁</CheckBox>
+                            <CheckBox Margin="6,0" VerticalAlignment="Center" IsChecked="{Binding ElementName=ThisMainWindow, Path=IsPlayerRepeatOn}" ToolTip="Repeat (at the end of the slice playback, jump back to start and continue playback)">🔁</CheckBox>
+                            <CheckBox Margin="6,0" VerticalAlignment="Center" IsChecked="{Binding ElementName=ThisMainWindow, Path=IsPlayerMuted}" ToolTip="Mute audio playback">🔇</CheckBox>
+                            <Label VerticalAlignment="Center">🔊</Label>
+                            <Slider Width="64" VerticalAlignment="Center" Value="{Binding ElementName=ThisMainWindow, Path=PlayerVolume}" Minimum="0.0" Maximum="1.0" SmallChange="0.01" LargeChange="0.1" />
                         </StackPanel>
                     </WrapPanel>
                     <GroupBox Grid.Row="1" Grid.Column="0" Header="Playback Position [ms]">

@@ -27,7 +27,7 @@ namespace KCode.Videocutter.ExternalInterfaces
             Monitor.Exit(ExportProcesses);
         }
 
-        public void ExportSlice(FileInfo sourcefile, Marking marking)
+        public void ExportSlice(FileInfo sourcefile, Marking marking, MediaContainerFormat containerFormat, MediaVideoCodec videoCodec, MediaAudioCodec audioCodec)
         {
             if (!File.Exists("ffmpeg.exe"))
             {
@@ -35,7 +35,12 @@ namespace KCode.Videocutter.ExternalInterfaces
                 return;
             }
 
-            var startArguments = new FfmpegArguments(sourcefile, marking.StartMs, marking.EndMs);
+            var startArguments = new FfmpegArguments(sourcefile, marking.StartMs, marking.EndMs)
+            {
+                ContainerFormat = containerFormat,
+                VideoCodec = videoCodec,
+                AudioCodec = audioCodec,
+            };
             if (startArguments.TargetFile.Exists)
             {
                 var res = MessageBox.Show($"The target file {startArguments.TargetFile} already exists. Do you want to overwrite it?", "Target file already exists", MessageBoxButton.YesNo);
