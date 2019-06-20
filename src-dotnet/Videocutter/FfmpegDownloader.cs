@@ -7,7 +7,8 @@ namespace KCode.Videocutter
 {
     class FfmpegDownloader : IDisposable
     {
-        private static Uri DownloadUrl = new Uri("https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-20190612-caabe1b-win64-static.zip");
+        private static readonly string Version = "20190620-86f04b9";
+        private static Uri DownloadUrl = new Uri($"https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-{Version}-win64-static.zip");
 
         public static void Download()
         {
@@ -30,7 +31,7 @@ namespace KCode.Videocutter
         {
             var res = DownloadZip();
             using var zip = new ZipArchive(res, ZipArchiveMode.Read);
-            var entry = zip.GetEntry("ffmpeg-20190612-caabe1b-win64-static/bin/ffmpeg.exe");
+            var entry = zip.GetEntry($"ffmpeg-{Version}-win64-static/bin/ffmpeg.exe");
             entry.ExtractToFile("ffmpeg.exe", overwrite: false);
             //zip.GetEntry("ffmpeg-20190612-caabe1b-win64-static")
         }
