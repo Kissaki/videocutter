@@ -32,12 +32,14 @@ namespace KCode.Videocutter
         public static readonly DependencyProperty SliceMinMsProperty = DependencyProperty.Register(nameof(SliceMinMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
         public static readonly DependencyProperty SliceMaxMsProperty = DependencyProperty.Register(nameof(SliceMaxMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
         public static readonly DependencyProperty CurrentPosMsProperty = DependencyProperty.Register(nameof(CurrentPosMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
+        public static readonly DependencyProperty IsPlayerRepeatOnProperty = DependencyProperty.Register(nameof(IsPlayerRepeatOn), typeof(bool), typeof(MainWindow), new PropertyMetadata(defaultValue: true));
 
         public FileInfo CurrentFile { get => (FileInfo)GetValue(CurrentFileProperty); set => SetValue(CurrentFileProperty, value); }
         public Markings Markings { get => (Markings)GetValue(MarkingsProperty); set => SetValue(MarkingsProperty, value); }
         public double SliceMinMs { get => (double)GetValue(SliceMinMsProperty); set => SetValue(SliceMinMsProperty, value); }
         public double SliceMaxMs { get => (double)GetValue(SliceMaxMsProperty); set => SetValue(SliceMaxMsProperty, value); }
         public double CurrentPosMs { get => (double)GetValue(CurrentPosMsProperty); set => SetValue(CurrentPosMsProperty, value); }
+        public bool IsPlayerRepeatOn { get => (bool)GetValue(IsPlayerRepeatOnProperty); set => SetValue(IsPlayerRepeatOnProperty, value); }
 
         private bool IsPlaying { get; set; }
         private DirectoryInfo CurrentDir { get; set; }
@@ -182,7 +184,7 @@ namespace KCode.Videocutter
                 return;
             }
             Dispatcher.Invoke(() => SetCurrentTime(CurrentTimeMsPrecise));
-            Dispatcher.Invoke(() => { if (cPosition.Value >= SliceMaxMs) { JumpToStart(); } });
+            Dispatcher.Invoke(() => { if (cPosition.Value >= SliceMaxMs) { if (IsPlayerRepeatOn) { JumpToStart(); } else { Stop();} } });
         }
         private void SetCurrentTime(double ms) => CurrentPosMs = ms;
 
