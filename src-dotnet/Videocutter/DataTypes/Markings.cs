@@ -50,7 +50,14 @@ namespace KCode.Videocutter.DataTypes
             {
                 JsonSerializer.WriteAsync(this, stream).Wait();
             }
-            tmp.Replace(markingsFile.FullName, destinationBackupFileName: null);
+            if (markingsFile.Exists)
+            {
+                tmp.Replace(markingsFile.FullName, destinationBackupFileName: null);
+            }
+            else
+            {
+                tmp.MoveTo(markingsFile.FullName);
+            }
         }
     }
 }
