@@ -131,7 +131,7 @@ namespace KCode.Videocutter
             sFileSize.Content = CurrentFile.LengthAsHumanString();
             IsPlaying = true;
 
-            if (CurrentDir != CurrentFile.Directory)
+            if (CurrentDir?.FullName != CurrentFile.Directory?.FullName)
             {
                 var dirFiles = GetVideoFiles(CurrentFile.Directory);
                 cFilesList.ItemsSource = dirFiles;
