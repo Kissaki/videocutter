@@ -38,9 +38,12 @@ namespace KCode.Videocutter.DataTypes
         public void Save(FileInfo videofile)
         {
             var markingsFile = GetMarkingsFilepathFor(videofile);
-            if (Count == 0 && markingsFile.Exists)
+            if (Count == 0)
             {
-                markingsFile.Delete();
+                if (markingsFile.Exists)
+                {
+                    markingsFile.Delete();
+                }
                 return;
             }
 
