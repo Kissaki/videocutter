@@ -274,8 +274,10 @@ namespace KCode.Videocutter
 
         private void CMarkingsList_Play(object sender, Controls.MarkingsList.MarkingEventArgs e) => SetSlice(e.Marking);
         private void CMarkingsList_Export(object sender, Controls.MarkingsList.MarkingEventArgs e) => ExportSlice(e.Marking);
-        private void CMarkingsList_SetBegin(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.StartMs = CurrentTimeMsPrecise;
-        private void CMarkingsList_SetEnd(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.EndMs = CurrentTimeMsPrecise;
+        // If new value is after end time, assume we just passed the end time and the user wanted to set the end time as the start time as well (possibly in preparation to change the end time afterwards).
+        private void CMarkingsList_SetBegin(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.StartMs = CurrentTimeMsPrecise > e.Marking.EndMs ? e.Marking.EndMs : CurrentTimeMsPrecise;
+        // If new value is before start time, expect the playback looped around from the end to the start, and use the end (slice max value) instead.
+        private void CMarkingsList_SetEnd(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.EndMs = CurrentTimeMsPrecise < e.Marking.StartMs ? (IsPlayerRepeatOn ? (int)SliceMaxMs : e.Marking.StartMs) : CurrentTimeMsPrecise;
         private void BtnAddMarking_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs, EndMs = (int)CurrentPosMs, });
         private void BtnAddMarking5s_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs - 5000, EndMs = (int)CurrentPosMs, });
         private void BtnExportAllMarkings_Click(object sender, RoutedEventArgs e) { foreach (var item in Markings) { ExportSlice(item); } }
