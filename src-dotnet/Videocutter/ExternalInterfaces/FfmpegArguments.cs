@@ -128,7 +128,14 @@ namespace KCode.Videocutter.ExternalInterfaces
 
         private static string TimeSpanToSeconds(TimeSpan? ts)
         {
-            return ts == null ? "0" : $"{ts?.TotalSeconds:N0}.{ts?.Milliseconds:N0}";
+            if (ts == null)
+            {
+                return "0";
+            }
+            var ms = (int)ts.Value.TotalMilliseconds;
+            var msPart = ms % 1000;
+            var sPart = (int)ms / 1000;
+            return $"{sPart:0}.{msPart:0}";
         }
     }
 }
