@@ -46,7 +46,7 @@ namespace KCode.Videocutter.ExternalInterfaces
             return @$"{extractArguments} -i ""{SourceFile.FullName}"" {targetArguments} ""{TargetFile.FullName}{GetContainerFileExtension()}""";
         }
 
-        private object GetTargetArguments() => $"{GetVideoArguments()} {GetAudioArguments()}";
+        private object GetTargetArguments() => $"{GetVideoArguments()} {GetAudioArguments()} {GetContainerFormatArguments()}";
 
         private string GetVideoArguments()
         {
@@ -112,6 +112,17 @@ namespace KCode.Videocutter.ExternalInterfaces
                     return ".webm";
                 default:
                     throw new NotImplementedException($"The ffmpeg parameter creation for this container type is not implemented yet. {Enum.GetName(typeof(MediaContainerFormat), ContainerFormat)}");
+            }
+        }
+
+        private string GetContainerFormatArguments()
+        {
+            switch (ContainerFormat)
+            {
+                case MediaContainerFormat.MP4:
+                    return "-movflags +faststart";
+                default:
+                    return string.Empty;
             }
         }
 
