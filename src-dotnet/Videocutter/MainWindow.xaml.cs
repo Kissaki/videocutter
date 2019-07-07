@@ -1,4 +1,5 @@
 ﻿using KCode.Videocutter.DataTypes;
+using KCode.Videocutter.DependencyDownloaders;
 using KCode.Videocutter.ExternalInterfaces;
 using System;
 using System.Collections.Generic;
