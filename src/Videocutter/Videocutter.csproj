@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <NullableReferenceTypes>true</NullableReferenceTypes>
+    <UseWPF>true</UseWPF>
+    <Authors>Jan Klass</Authors>
+    <Company></Company>
+    <PackageLicenseExpression>GPL</PackageLicenseExpression>
+    <PackageId>Videocutter</PackageId>
+    <RootNamespace>KCode.Videocutter</RootNamespace>
+    <AssemblyName>Videocutter</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Controls\FileInfoUC.xaml" />
+    <None Remove="Controls\MarkingsList.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controls\FileInfoUC.xaml.cs" />
+  </ItemGroup>
+
+</Project>

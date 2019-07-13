@@ -1,8 +1,6 @@
-A GUI for cutting and combining scenes from a video file using FFmpeg.
-
-![](screenshot.png)
+# Videocutter - A Windows program for previewing, marking and cutting video
 
 Technologies used:
-* [Qt](https://www.qt.io/)
-* [Qt Quick](https://www.qt.io/qt-quick/)
+* .NET Core
+* WPF
 * [FFmpeg](http://ffmpeg.org/) *(external binary dependency)*
