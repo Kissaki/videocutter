@@ -35,3 +35,9 @@ jobs:
       arguments: '--configuration Release --self-contained --runtime win-x64 --output $(Build.ArtifactStagingDirectory)/Videocutter'
   - task: PublishBuildArtifacts@1
     displayName: PublishArtifacts
+  - task: GithubRelease@0 
+    displayName: 'Create GitHub Release'
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/v')
+    inputs:
+      gitHubConnection: videocutter-github-release-connection
+      repositoryName: Kissaki/videocutter
