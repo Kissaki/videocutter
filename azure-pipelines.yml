@@ -42,3 +42,4 @@ jobs:
       gitHubConnection: videocutter-github-release-connection
       repositoryName: Kissaki/videocutter
       title: 'Videocutter $(Build.SourceBranchName)'
+      assets: '$(Build.ArtifactStagingDirectory)/*/*'
