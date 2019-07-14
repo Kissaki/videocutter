@@ -126,16 +126,10 @@ namespace KCode.Videocutter.ExternalInterfaces
             }
         }
 
-        private static string TimeSpanToSeconds(TimeSpan? ts)
+        public static string TimeSpanToSeconds(TimeSpan? ts)
         {
-            if (ts == null)
-            {
-                return "0";
-            }
-            var ms = (int)ts.Value.TotalMilliseconds;
-            var msPart = ms % 1000;
-            var sPart = (int)ms / 1000;
-            return $"{sPart:0}.{msPart:0}";
+            var ms = ts.HasValue ? ts.Value.TotalMilliseconds / 1000 : 0;
+            return FormattableString.Invariant($"{ms:0.000}");
         }
     }
 }
