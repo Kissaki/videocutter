@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Videocutter", "Videocutter\Videocutter.csproj", "{E4C1D303-2E21-407E-A596-CF815F0C85EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideocutterTest", "VideocutterTest\VideocutterTest.csproj", "{6D07623D-D73F-4778-99B4-68DC195F07C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideocutterTest", "VideocutterTest\VideocutterTest.csproj", "{6D07623D-D73F-4778-99B4-68DC195F07C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
