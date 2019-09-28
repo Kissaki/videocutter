@@ -3,16 +3,17 @@ using KCode.Videocutter.ExternalInterfaces;
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Path = System.IO.Path;
+using Timer = System.Timers.Timer;
 
 namespace KCode.Videocutter
 {
-    public partial class MainWindow : Window, IDisposable
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "WPF Window is never disposed. We handle it manually in the Closed event.")]
+    public partial class MainWindow : Window
     {
         public static readonly DependencyProperty CurrentFileProperty = DependencyProperty.Register(nameof(CurrentFile), typeof(FileInfo), typeof(MainWindow), new PropertyMetadata());
         public static readonly DependencyProperty MarkingsProperty = DependencyProperty.Register(nameof(Markings), typeof(MarkingCollection), typeof(MainWindow), new PropertyMetadata(new MarkingCollection()));
@@ -43,7 +44,7 @@ namespace KCode.Videocutter
         private bool IsPlaying { get; set; }
         private DirectoryInfo CurrentDir { get; set; }
         private MediaTimeline MediaTimeline;
-        private readonly Thread UpdateLoopThread;
+        private readonly Timer UiUpdateTimer = new Timer(200);
 
         //public TimeSpan SliceMin
         //{
@@ -65,9 +66,6 @@ namespace KCode.Videocutter
 
             cMediaElement.MediaOpened += CMediaElement_MediaOpened;
 
-            UpdateLoopThread = new Thread(UpdateLoop);
-            UpdateLoopThread.Start();
-
             if (!File.Exists("ffmpeg.exe"))
             {
                 var wantDownloadRes = MessageBox.Show("The program ffmpeg is required to extract and combine video, but it was not found.\nDo you want to download it now? (This is automated.)\nIf you choose no you will be able to open, view and prepare videos, but not encode them.", "No ffmpeg - download", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -79,6 +77,7 @@ namespace KCode.Videocutter
 
             Ffmpeg.ActiveCountChanged += (sender, e) => Dispatcher.Invoke(() => sStatus.Content = $"Active exports: {Ffmpeg.ActiveCount}");
             Closed += (sender, e) => { if (CurrentFile != null) { Markings.Save(CurrentFile); }; };
+            UiUpdateTimer.Elapsed += (sender, e) => UpdateSeekers();
 
             // TODO: Solve this through bindings now
             //cFrom.ValueChanged += (sender, e) => { if (TimeSpan.FromMilliseconds(cPosition.Minimum) > Clock.CurrentTime.Value) { JumpTo(TimeSpan.FromMilliseconds(cPosition.Minimum)); } };
@@ -96,6 +95,14 @@ namespace KCode.Videocutter
             {
                 throw new ArgumentException("Invalid program arguments. Currently only accepts no or a single filepath parameter.");
             }
+
+            UiUpdateTimer.Start();
+        }
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            UiUpdateTimer?.Dispose();
+            Ffmpeg?.Dispose();
         }
 
         public void OpenFile(string fpath)
@@ -165,15 +172,6 @@ namespace KCode.Videocutter
             SliceMinMs = 0.0;
             SliceMaxMs = cTo.Maximum;
             CurrentPosMs = 0.0;
-        }
-
-        private void UpdateLoop()
-        {
-            while (true)
-            {
-                UpdateSeekers();
-                Thread.Sleep(TimeSpan.FromMilliseconds(200));
-            }
         }
 
         private int CurrentTimeMsPrecise => (int)(Clock.CurrentTime ?? TimeSpan.Zero).TotalMilliseconds;
@@ -272,21 +270,5 @@ namespace KCode.Videocutter
         private void BtnAddMarking_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs, EndMs = (int)CurrentPosMs, });
         private void BtnAddMarking5s_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs - 5000, EndMs = (int)CurrentPosMs, });
         private void BtnExportAllMarkings_Click(object sender, RoutedEventArgs e) { foreach (var item in Markings) { ExportSlice(item); } }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            Ffmpeg.Dispose();
-
-            if (!disposing)
-            {
-                throw new InvalidOperationException();
-            }
-        }
     }
 }
