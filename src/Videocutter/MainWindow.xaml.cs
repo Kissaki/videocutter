@@ -272,7 +272,7 @@ namespace KCode.Videocutter
             Ffmpeg.ExportSlice(CurrentFile, slice, SettingContainerFormat, SettingVideoCodec, SettingAudioCodec);
         }
 
-        private void CMarkingsList_Play(object sender, Controls.MarkingsList.MarkingEventArgs e) => SetSlice(e.Marking);
+        private void CMarkingsList_Play(object sender, Controls.MarkingsList.MarkingEventArgs e) { SetSlice(e.Marking); Play(); }
         private void CMarkingsList_Export(object sender, Controls.MarkingsList.MarkingEventArgs e) => ExportSlice(e.Marking);
         // If new value is after end time, assume we just passed the end time and the user wanted to set the end time as the start time as well (possibly in preparation to change the end time afterwards).
         private void CMarkingsList_SetBegin(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.StartMs = CurrentTimeMsPrecise > e.Marking.EndMs ? e.Marking.EndMs : CurrentTimeMsPrecise;
