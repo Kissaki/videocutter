@@ -47,11 +47,10 @@ namespace KCode.Videocutter.DataTypes
                 return;
             }
 
-            var json = JsonSerializer.ToString(this);
             var tmp = new FileInfo(markingsFile.FullName + ".new");
             using (var stream = tmp.OpenWrite())
             {
-                JsonSerializer.WriteAsync(this, stream).Wait();
+                JsonSerializer.SerializeAsync(stream, this).Wait();
             }
             if (markingsFile.Exists)
             {
