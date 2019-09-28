@@ -15,7 +15,7 @@
                 <DataGridTemplateColumn Header="Play">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Click="Button_Click" Padding="8,2">Play</Button>
+                            <Button Click="Play_Click" Padding="8,2">Play</Button>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

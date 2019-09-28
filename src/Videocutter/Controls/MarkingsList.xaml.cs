@@ -35,7 +35,7 @@ namespace KCode.Videocutter.Controls
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e) => Play?.Invoke(this, new MarkingEventArgs((Marking)cDataGrid.CurrentItem));
+        private void Play_Click(object sender, RoutedEventArgs e) => Play?.Invoke(this, new MarkingEventArgs((Marking)cDataGrid.CurrentItem));
         private void Remove_Click(object sender, RoutedEventArgs e) => ((Markings)DataContext).Remove((Marking)cDataGrid.CurrentItem);
         private void Export_Click(object sender, RoutedEventArgs e) => Export?.Invoke(this, new MarkingEventArgs((Marking)cDataGrid.CurrentItem));
         private void SetBegin_Click(object sender, RoutedEventArgs e) => SetBegin?.Invoke(this, new MarkingEventArgs((Marking)cDataGrid.CurrentItem));
