@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <Authors>Jan Klass</Authors>
     <Company></Company>
-    <PackageLicenseExpression>GPL</PackageLicenseExpression>
+    <PackageLicenseExpression></PackageLicenseExpression>
     <PackageId>Videocutter</PackageId>
     <RootNamespace>KCode.Videocutter</RootNamespace>
     <AssemblyName>Videocutter</AssemblyName>
