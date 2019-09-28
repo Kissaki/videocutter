@@ -194,7 +194,7 @@ namespace KCode.Videocutter
                 return;
             }
             Dispatcher.Invoke(() => SetCurrentTime(CurrentTimeMsPrecise));
-            Dispatcher.Invoke(() => { if (cPosition.Value >= SliceMaxMs) { if (IsPlayerRepeatOn) { JumpToStart(); } else { Stop();} } });
+            Dispatcher.Invoke(() => { if (cPosition.Value >= SliceMaxMs) { if (IsPlayerRepeatOn) { JumpToStart(); } else { Stop(); } } });
         }
         private void SetCurrentTime(double ms) => CurrentPosMs = ms;
 
