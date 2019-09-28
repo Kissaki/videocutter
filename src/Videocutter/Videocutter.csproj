@@ -11,6 +11,7 @@
     <PackageId>Videocutter</PackageId>
     <RootNamespace>KCode.Videocutter</RootNamespace>
     <AssemblyName>Videocutter</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RepositoryUrl>https://github.com/Kissaki/videocutter</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
