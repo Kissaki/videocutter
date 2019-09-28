@@ -11,6 +11,8 @@
     <PackageId>Videocutter</PackageId>
     <RootNamespace>KCode.Videocutter</RootNamespace>
     <AssemblyName>Videocutter</AssemblyName>
+    <RepositoryUrl>https://github.com/Kissaki/videocutter</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
