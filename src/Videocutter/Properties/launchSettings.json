@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Videocutter": {
-      "commandName": "Project",
-      "commandLineArgs": "\"E:\\test\\2019-04-27 18-38-46.mkv\""
-    }
-  }
-}
