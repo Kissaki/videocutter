@@ -1,28 +1,26 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace KCode.Videocutter.DataTypes
 {
-    public class Markings : ObservableCollection<Marking>
+    public class MarkingCollection : ObservableCollection<Marking>
     {
         private static readonly string MarkingsFilenamePostfix = ".markings.json";
         private static readonly Encoding Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
         private static FileInfo GetMarkingsFilepathFor(FileInfo videofile) => new FileInfo(videofile.FullName + MarkingsFilenamePostfix);
 
-        public static Markings LoadFor(FileInfo videofile)
+        internal static MarkingCollection LoadFor(FileInfo videofile)
         {
             var markingsFile = GetMarkingsFilepathFor(videofile);
             if (!markingsFile.Exists)
             {
-                return new Markings();
+                return new MarkingCollection();
             }
 
-            var list = new Markings();
+            var list = new MarkingCollection();
             var json = File.ReadAllText(markingsFile.FullName, Encoding);
             var d = JsonDocument.Parse(json);
             var it = d.RootElement.EnumerateArray();
@@ -35,7 +33,7 @@ namespace KCode.Videocutter.DataTypes
             //return JsonSerializer.Parse<Markings>(json);
         }
 
-        public void Save(FileInfo videofile)
+        internal void Save(FileInfo videofile)
         {
             var markingsFile = GetMarkingsFilepathFor(videofile);
             if (Count == 0)

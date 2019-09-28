@@ -1,10 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace KCode.Videocutter
 {
     public static class ClassExtensions
     {
-        public static string LengthAsHumanString(this FileInfo fi) => FormatFileSize(fi.Length);
+        public static string LengthAsHumanString(this FileInfo fi) => FormatFileSize(fi?.Length ?? throw new ArgumentNullException(nameof(fi)));
 
         private static readonly string[] FileSizeMagnitudes = { "B", "KB", "MB", "GB", "TB" };
 
@@ -34,7 +35,7 @@ namespace KCode.Videocutter
             }
             return i;
         }
-        
+
         public static long Pow(this long bas, long exp)
         {
             if (exp == 0)

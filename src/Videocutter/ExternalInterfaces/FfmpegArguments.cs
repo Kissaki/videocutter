@@ -27,7 +27,7 @@ namespace KCode.Videocutter.ExternalInterfaces
         public MediaVideoCodec VideoCodec { get; set; }
         public MediaAudioCodec AudioCodec { get; set; }
 
-        public FfmpegArguments(FileInfo sourceFilePath, int fromMs, int toMs)
+        internal FfmpegArguments(FileInfo sourceFilePath, int fromMs, int toMs)
         {
             SourceFile = sourceFilePath;
             TargetFile = new FileInfo(GetExtractFilepath(sourceFilePath, fromMs, toMs));
@@ -54,23 +54,16 @@ namespace KCode.Videocutter.ExternalInterfaces
             {
                 return string.Empty;
             }
-            switch (VideoCodec)
+            return VideoCodec switch
             {
-                case MediaVideoCodec.AV1:
-                    return "-c:v libaom-av1 -strict experimental";
-                case MediaVideoCodec.VP9:
-                    return "-c:v libvpx-vp9";
-                case MediaVideoCodec.H264:
-                    return "-c:v libx264";
-                case MediaVideoCodec.H265:
-                    return "-c:v libx265";
-                case MediaVideoCodec.Copy:
-                    return "-c:v copy";
-                case MediaVideoCodec.Drop:
-                    return "-vn";
-                default:
-                    throw new NotImplementedException($"The ffmpeg parameter creation for this video codec is not implemented yet. {Enum.GetName(typeof(MediaVideoCodec), VideoCodec)}");
-            }
+                MediaVideoCodec.AV1 => "-c:v libaom-av1 -strict experimental",
+                MediaVideoCodec.VP9 => "-c:v libvpx-vp9",
+                MediaVideoCodec.H264 => "-c:v libx264",
+                MediaVideoCodec.H265 => "-c:v libx265",
+                MediaVideoCodec.Copy => "-c:v copy",
+                MediaVideoCodec.Drop => "-vn",
+                _ => throw new NotImplementedException($"The ffmpeg parameter creation for this video codec is not implemented yet. {Enum.GetName(typeof(MediaVideoCodec), VideoCodec)}"),
+            };
         }
 
         private string GetAudioArguments()
@@ -79,21 +72,15 @@ namespace KCode.Videocutter.ExternalInterfaces
             {
                 return string.Empty;
             }
-            switch (AudioCodec)
+            return AudioCodec switch
             {
-                case MediaAudioCodec.AAC:
-                    return "-c:a aac";
-                case MediaAudioCodec.Opus:
-                    return "-c:a libopus";
-                case MediaAudioCodec.MP3:
-                    return "-c:a libmp3lame";
-                case MediaAudioCodec.Copy:
-                    return "-c:a copy";
-                case MediaAudioCodec.Drop:
-                    return "-an";
-                default:
-                    throw new NotImplementedException($"The ffmpeg parameter creation for this video codec is not implemented yet. {Enum.GetName(typeof(MediaVideoCodec), VideoCodec)}");
-            }
+                MediaAudioCodec.AAC => "-c:a aac",
+                MediaAudioCodec.Opus => "-c:a libopus",
+                MediaAudioCodec.MP3 => "-c:a libmp3lame",
+                MediaAudioCodec.Copy => "-c:a copy",
+                MediaAudioCodec.Drop => "-an",
+                _ => throw new NotImplementedException($"The ffmpeg parameter creation for this video codec is not implemented yet. {Enum.GetName(typeof(MediaVideoCodec), VideoCodec)}"),
+            };
         }
 
         private string GetContainerFileExtension()
@@ -102,28 +89,22 @@ namespace KCode.Videocutter.ExternalInterfaces
             {
                 return string.Empty;
             }
-            switch (ContainerFormat)
+            return ContainerFormat switch
             {
-                case MediaContainerFormat.MP4:
-                    return ".mp4";
-                case MediaContainerFormat.MKV:
-                    return ".mkv";
-                case MediaContainerFormat.WEBM:
-                    return ".webm";
-                default:
-                    throw new NotImplementedException($"The ffmpeg parameter creation for this container type is not implemented yet. {Enum.GetName(typeof(MediaContainerFormat), ContainerFormat)}");
-            }
+                MediaContainerFormat.MP4 => ".mp4",
+                MediaContainerFormat.MKV => ".mkv",
+                MediaContainerFormat.WEBM => ".webm",
+                _ => throw new NotImplementedException($"The ffmpeg parameter creation for this container type is not implemented yet. {Enum.GetName(typeof(MediaContainerFormat), ContainerFormat)}"),
+            };
         }
 
         private string GetContainerFormatArguments()
         {
-            switch (ContainerFormat)
+            return ContainerFormat switch
             {
-                case MediaContainerFormat.MP4:
-                    return "-movflags +faststart";
-                default:
-                    return string.Empty;
-            }
+                MediaContainerFormat.MP4 => "-movflags +faststart",
+                _ => string.Empty,
+            };
         }
 
         public static string TimeSpanToSeconds(TimeSpan? ts)

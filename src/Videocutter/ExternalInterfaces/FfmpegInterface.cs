@@ -14,9 +14,15 @@ namespace KCode.Videocutter.ExternalInterfaces
 
         public int ActiveCount { get => ExportProcesses.Count; }
 
-        private List<Process> ExportProcesses = new List<Process>();
+        private readonly List<Process> ExportProcesses = new List<Process>();
 
         public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             Monitor.Enter(ExportProcesses);
             var active = new List<Process>(ExportProcesses);
@@ -25,9 +31,14 @@ namespace KCode.Videocutter.ExternalInterfaces
                 p.WaitForExit();
             }
             Monitor.Exit(ExportProcesses);
+
+            if (!disposing)
+            {
+                throw new InvalidOperationException();
+            }
         }
 
-        public void ExportSlice(FileInfo sourcefile, Marking marking, MediaContainerFormat containerFormat, MediaVideoCodec videoCodec, MediaAudioCodec audioCodec)
+        internal void ExportSlice(FileInfo sourcefile, Marking marking, MediaContainerFormat containerFormat, MediaVideoCodec videoCodec, MediaAudioCodec audioCodec)
         {
             if (!File.Exists("ffmpeg.exe"))
             {

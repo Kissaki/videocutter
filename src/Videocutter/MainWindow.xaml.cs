@@ -1,32 +1,21 @@
 ﻿using KCode.Videocutter.DataTypes;
 using KCode.Videocutter.ExternalInterfaces;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Path = System.IO.Path;
 
 namespace KCode.Videocutter
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IDisposable
     {
         public static readonly DependencyProperty CurrentFileProperty = DependencyProperty.Register(nameof(CurrentFile), typeof(FileInfo), typeof(MainWindow), new PropertyMetadata());
-        public static readonly DependencyProperty MarkingsProperty = DependencyProperty.Register(nameof(Markings), typeof(Markings), typeof(MainWindow), new PropertyMetadata(new Markings()));
+        public static readonly DependencyProperty MarkingsProperty = DependencyProperty.Register(nameof(Markings), typeof(MarkingCollection), typeof(MainWindow), new PropertyMetadata(new MarkingCollection()));
         //public static readonly DependencyProperty SliceMinProperty = DependencyProperty.Register(nameof(SliceMin), typeof(TimeSpan), typeof(MainWindow), new PropertyMetadata(TimeSpan.Zero));
         //public static readonly DependencyProperty SliceMaxProperty = DependencyProperty.Register(nameof(SliceMax), typeof(TimeSpan), typeof(MainWindow), new PropertyMetadata(TimeSpan.Zero));
         public static readonly DependencyProperty SliceMinMsProperty = DependencyProperty.Register(nameof(SliceMinMs), typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
@@ -40,7 +29,7 @@ namespace KCode.Videocutter
         public static readonly DependencyProperty SettingAudioCodecProperty = DependencyProperty.Register(nameof(SettingAudioCodec), typeof(MediaAudioCodec), typeof(MainWindow));
 
         public FileInfo CurrentFile { get => (FileInfo)GetValue(CurrentFileProperty); set => SetValue(CurrentFileProperty, value); }
-        public Markings Markings { get => (Markings)GetValue(MarkingsProperty); set => SetValue(MarkingsProperty, value); }
+        internal MarkingCollection Markings { get => (MarkingCollection)GetValue(MarkingsProperty); set => SetValue(MarkingsProperty, value); }
         public double SliceMinMs { get => (double)GetValue(SliceMinMsProperty); set => SetValue(SliceMinMsProperty, value); }
         public double SliceMaxMs { get => (double)GetValue(SliceMaxMsProperty); set => SetValue(SliceMaxMsProperty, value); }
         public double CurrentPosMs { get => (double)GetValue(CurrentPosMsProperty); set => SetValue(CurrentPosMsProperty, value); }
@@ -54,7 +43,7 @@ namespace KCode.Videocutter
         private bool IsPlaying { get; set; }
         private DirectoryInfo CurrentDir { get; set; }
         private MediaTimeline MediaTimeline;
-        private Thread UpdateLoopThread;
+        private readonly Thread UpdateLoopThread;
 
         //public TimeSpan SliceMin
         //{
@@ -68,7 +57,7 @@ namespace KCode.Videocutter
         //}
 
 
-        private FfmpegInterface Ffmpeg = new FfmpegInterface();
+        private readonly FfmpegInterface Ffmpeg = new FfmpegInterface();
 
         public MainWindow()
         {
@@ -122,8 +111,10 @@ namespace KCode.Videocutter
             }
 
             Console.WriteLine($"Opening file {fpath}");
-            MediaTimeline = new MediaTimeline(new Uri(fpath));
-            MediaTimeline.RepeatBehavior = RepeatBehavior.Forever;
+            MediaTimeline = new MediaTimeline(new Uri(fpath))
+            {
+                RepeatBehavior = RepeatBehavior.Forever
+            };
             cMediaElement.Clock = MediaTimeline.CreateClock();
             //cFileInfo.FilePath = new Uri(fpath);
             CurrentFile = new FileInfo(fpath);
@@ -133,7 +124,7 @@ namespace KCode.Videocutter
 
             if (CurrentDir?.FullName != CurrentFile.Directory?.FullName)
             {
-                var dirFiles = GetVideoFiles(CurrentFile.Directory);
+                var dirFiles = GetVideoFiles();
                 cFilesList.ItemsSource = dirFiles;
             }
             cFilesList.SelectedValue = CurrentFile.Name;
@@ -142,7 +133,7 @@ namespace KCode.Videocutter
 
             //Markings.Clear();
             //Markings.AddRange();
-            Markings = Markings.LoadFor(new FileInfo(fpath));
+            Markings = MarkingCollection.LoadFor(new FileInfo(fpath));
             //cMarkingsList.Markings = Markings.LoadFor(fpath);
         }
 
@@ -154,14 +145,14 @@ namespace KCode.Videocutter
             JumpTo(TimeSpan.FromMilliseconds(SliceMinMs));
         }
 
-        private IOrderedEnumerable<string> GetVideoFiles(DirectoryInfo fi)
+        private IOrderedEnumerable<string> GetVideoFiles()
         {
             CurrentDir = CurrentFile.Directory;
             var dirFiles = CurrentDir.GetFiles().Select(x => x.Name).Where(IsVideoFile).OrderBy(x => x);
             return dirFiles;
         }
 
-        private static bool IsVideoFile(string filename) => filename.EndsWith(".mp4") || filename.EndsWith(".mkv");
+        private static bool IsVideoFile(string filename) => filename.EndsWith(".mp4", StringComparison.InvariantCultureIgnoreCase) || filename.EndsWith(".mkv", StringComparison.InvariantCultureIgnoreCase);
 
         private void UpdateWindowTitle() => Title = "VideoCutter" + TitlePostfix;
 
@@ -243,7 +234,7 @@ namespace KCode.Videocutter
         private void BtnSkipBackward_Click(object sender, RoutedEventArgs e) => JumpRelative(-TimeSpan.FromSeconds(3));
         private void JumpRelative(TimeSpan distance) => JumpTo(cMediaElement.Position + distance);
         private void JumpTo(TimeSpan target) => cMediaElement.Clock.Controller.Seek(TimeSpanValueRangeLimited(target, TimeSpan.FromMilliseconds(SliceMinMs), TimeSpan.FromMilliseconds(SliceMaxMs)), TimeSeekOrigin.BeginTime);
-        private TimeSpan TimeSpanValueRangeLimited(TimeSpan value, TimeSpan min, TimeSpan max)
+        private static TimeSpan TimeSpanValueRangeLimited(TimeSpan value, TimeSpan min, TimeSpan max)
         {
             return value > max ? max : (value < min ? min : value);
         }
@@ -272,14 +263,30 @@ namespace KCode.Videocutter
             Ffmpeg.ExportSlice(CurrentFile, slice, SettingContainerFormat, SettingVideoCodec, SettingAudioCodec);
         }
 
-        private void CMarkingsList_Play(object sender, Controls.MarkingsList.MarkingEventArgs e) { SetSlice(e.Marking); Play(); }
-        private void CMarkingsList_Export(object sender, Controls.MarkingsList.MarkingEventArgs e) => ExportSlice(e.Marking);
+        private void CMarkingsList_Play(object sender, Controls.MarkingEventArgs e) { SetSlice(e.Marking); Play(); }
+        private void CMarkingsList_Export(object sender, Controls.MarkingEventArgs e) => ExportSlice(e.Marking);
         // If new value is after end time, assume we just passed the end time and the user wanted to set the end time as the start time as well (possibly in preparation to change the end time afterwards).
-        private void CMarkingsList_SetBegin(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.StartMs = CurrentTimeMsPrecise > e.Marking.EndMs ? e.Marking.EndMs : CurrentTimeMsPrecise;
+        private void CMarkingsList_SetBegin(object sender, Controls.MarkingEventArgs e) => e.Marking.StartMs = CurrentTimeMsPrecise > e.Marking.EndMs ? e.Marking.EndMs : CurrentTimeMsPrecise;
         // If new value is before start time, expect the playback looped around from the end to the start, and use the end (slice max value) instead.
-        private void CMarkingsList_SetEnd(object sender, Controls.MarkingsList.MarkingEventArgs e) => e.Marking.EndMs = CurrentTimeMsPrecise < e.Marking.StartMs ? (IsPlayerRepeatOn ? (int)SliceMaxMs : e.Marking.StartMs) : CurrentTimeMsPrecise;
+        private void CMarkingsList_SetEnd(object sender, Controls.MarkingEventArgs e) => e.Marking.EndMs = CurrentTimeMsPrecise < e.Marking.StartMs ? (IsPlayerRepeatOn ? (int)SliceMaxMs : e.Marking.StartMs) : CurrentTimeMsPrecise;
         private void BtnAddMarking_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs, EndMs = (int)CurrentPosMs, });
         private void BtnAddMarking5s_Click(object sender, RoutedEventArgs e) => Markings.Add(new Marking() { StartMs = (int)CurrentPosMs - 5000, EndMs = (int)CurrentPosMs, });
         private void BtnExportAllMarkings_Click(object sender, RoutedEventArgs e) { foreach (var item in Markings) { ExportSlice(item); } }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            Ffmpeg.Dispose();
+
+            if (!disposing)
+            {
+                throw new InvalidOperationException();
+            }
+        }
     }
 }

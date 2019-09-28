@@ -6,7 +6,7 @@ using System.Windows.Data;
 namespace KCode.Videocutter.Converter
 {
     [ValueConversion(typeof(MediaAudioCodec), typeof(int))]
-    class MediaAudioCodecValueConverter : IValueConverter
+    public class MediaAudioCodecValueConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

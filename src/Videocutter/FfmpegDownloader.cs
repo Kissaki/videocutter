@@ -8,7 +8,7 @@ namespace KCode.Videocutter
     class FfmpegDownloader : IDisposable
     {
         private static readonly string Version = "20190620-86f04b9";
-        private static Uri DownloadUrl = new Uri($"https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-{Version}-win64-static.zip");
+        private static readonly Uri DownloadUrl = new Uri($"https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-{Version}-win64-static.zip");
 
         public static void Download()
         {
@@ -16,7 +16,7 @@ namespace KCode.Videocutter
             downloader.DoDownload();
         }
 
-        private HttpClient HttpClient = new HttpClient();
+        private readonly HttpClient HttpClient = new HttpClient();
 
         private FfmpegDownloader()
         {
