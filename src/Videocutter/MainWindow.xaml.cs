@@ -138,10 +138,7 @@ namespace KCode.Videocutter
 
             UpdateWindowTitle();
 
-            //Markings.Clear();
-            //Markings.AddRange();
             Markings = MarkingCollection.LoadFor(new FileInfo(fpath));
-            //cMarkingsList.Markings = Markings.LoadFor(fpath);
         }
 
         public void SetSlice(Marking marking = null)
