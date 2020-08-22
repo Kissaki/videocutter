@@ -46,7 +46,7 @@ namespace KCode.Videocutter.ExternalInterfaces
             return @$"{extractArguments} -i ""{SourceFile.FullName}"" {targetArguments} ""{TargetFile.FullName}{GetContainerFileExtension()}""";
         }
 
-        private object GetTargetArguments() => $"{GetVideoArguments()} {GetAudioArguments()} {GetContainerFormatArguments()}";
+        private object GetTargetArguments() => $"{GetVideoArguments()} {GetAudioArguments()} -map 0 {GetContainerFormatArguments()}";
 
         private string GetVideoArguments()
         {
