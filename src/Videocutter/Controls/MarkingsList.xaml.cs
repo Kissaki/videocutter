@@ -10,10 +10,10 @@ namespace KCode.Videocutter.Controls
     /// </summary>
     public partial class MarkingsList : UserControl
     {
-        public event EventHandler<MarkingEventArgs> Play;
-        public event EventHandler<MarkingEventArgs> Export;
-        public event EventHandler<MarkingEventArgs> SetBegin;
-        public event EventHandler<MarkingEventArgs> SetEnd;
+        public event EventHandler<MarkingEventArgs>? Play;
+        public event EventHandler<MarkingEventArgs>? Export;
+        public event EventHandler<MarkingEventArgs>? SetBegin;
+        public event EventHandler<MarkingEventArgs>? SetEnd;
 
         public MarkingsList()
         {

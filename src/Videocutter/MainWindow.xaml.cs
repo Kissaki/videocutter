@@ -42,9 +42,9 @@ namespace KCode.Videocutter
         public MediaAudioCodec SettingAudioCodec { get => (MediaAudioCodec)GetValue(SettingAudioCodecProperty); set => SetValue(SettingAudioCodecProperty, value); }
 
         private bool IsPlaying { get; set; }
-        private DirectoryInfo CurrentDir { get; set; }
-        private MediaTimeline MediaTimeline;
-        private readonly Timer UiUpdateTimer = new Timer(200);
+        private DirectoryInfo? CurrentDir { get; set; }
+        private MediaTimeline? MediaTimeline;
+        private readonly Timer UiUpdateTimer = new(200);
 
         //public TimeSpan SliceMin
         //{
@@ -58,7 +58,7 @@ namespace KCode.Videocutter
         //}
 
 
-        private readonly FfmpegInterface Ffmpeg = new FfmpegInterface();
+        private readonly FfmpegInterface Ffmpeg = new();
 
         public MainWindow()
         {
@@ -141,7 +141,7 @@ namespace KCode.Videocutter
             Markings = MarkingCollection.LoadFor(new FileInfo(fpath));
         }
 
-        public void SetSlice(Marking marking = null)
+        public void SetSlice(Marking? marking = null)
         {
             SliceMinMs = marking?.StartMs ?? 0.0;
             SliceMaxMs = marking?.EndMs ?? cTo.Maximum;
@@ -151,7 +151,8 @@ namespace KCode.Videocutter
 
         private IOrderedEnumerable<string> GetVideoFiles()
         {
-            CurrentDir = CurrentFile.Directory;
+            // When may this be null?
+            CurrentDir = CurrentFile.Directory!;
             var dirFiles = CurrentDir.GetFiles().Select(x => x.Name).Where(IsVideoFile).OrderBy(x => x);
             return dirFiles;
         }
@@ -160,7 +161,7 @@ namespace KCode.Videocutter
 
         private void UpdateWindowTitle() => Title = "VideoCutter" + TitlePostfix;
 
-        private string TitlePostfix { get => CurrentFile != null ? " - " + CurrentFile.Name + " in " + CurrentDir.FullName : string.Empty; }
+        private string TitlePostfix { get => CurrentFile != null ? " - " + CurrentFile.Name + " in " + CurrentDir?.FullName ?? "??" : string.Empty; }
 
         private void CMediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
@@ -237,6 +238,7 @@ namespace KCode.Videocutter
 
         private void CFilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (CurrentDir == null) throw new InvalidOperationException();
             if (cFilesList.SelectedValue != null)
             {
                 OpenFile(Path.Combine(CurrentDir.FullName, (string)cFilesList.SelectedValue));

@@ -10,7 +10,7 @@ namespace KCode.Videocutter.DataTypes
         [JsonPropertyName("end")]
         public int EndMs { get => endMs; set { endMs = value; OnPropertyChanged(nameof(EndMs)); } }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private int startMs;
         private int endMs;

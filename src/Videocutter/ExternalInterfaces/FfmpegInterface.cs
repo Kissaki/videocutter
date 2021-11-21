@@ -10,11 +10,11 @@ namespace KCode.Videocutter.ExternalInterfaces
 {
     public class FfmpegInterface : IDisposable
     {
-        public event EventHandler ActiveCountChanged;
+        public event EventHandler? ActiveCountChanged;
 
         public int ActiveCount { get => ExportProcesses.Count; }
 
-        private readonly List<Process> ExportProcesses = new List<Process>();
+        private readonly List<Process> ExportProcesses = new();
 
         public void Dispose()
         {
@@ -71,7 +71,7 @@ namespace KCode.Videocutter.ExternalInterfaces
             };
 
             Debug.WriteLine($"Starting ffmpeg.exe {startArguments}");
-            var p = Process.Start(si);
+            var p = Process.Start(si) ?? throw new InvalidOperationException($"Failed to start ffmpeg process. Process object reference is null.");
             Monitor.Enter(ExportProcesses);
             ExportProcesses.Add(p);
             Monitor.Exit(ExportProcesses);
@@ -90,8 +90,9 @@ namespace KCode.Videocutter.ExternalInterfaces
 
         private void P_ErrorDataReceived(object sender, DataReceivedEventArgs e) => Debug.WriteLine($"ffmpeg.exe says ERROR: {e.Data}");
 
-        private void Process_Exited(object sender, EventArgs e)
+        private void Process_Exited(object? sender, EventArgs e)
         {
+            if (sender == null) throw new InvalidOperationException("Process exit event has no sender");
             var p = (Process)sender;
             Debug.WriteLine($"ffmpeg.exe ended with exit code {p.ExitCode}");
             p.Dispose();
