@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="VideoCutter" Height="720" Width="1280"
         x:Name="ThisMainWindow"
-        AllowDrop="True" Drop="MediaElement_Drop" DragOver="MediaElement_DragOver"
+        AllowDrop="True" Drop="MediaElement_Drop" DragOver="MediaElement_DragOver" Background="#FF333333" Foreground="White"
         >
     <Window.Resources>
         <localConverter:MediaContainerFormatValueConverter x:Key="containerFormatConverter" />
@@ -39,7 +39,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <controls:FileInfoUC Grid.Row="0" x:Name="cFileInfo" DataContext="{Binding ElementName=ThisMainWindow, Path=CurrentFile}" />
-                <ListBox Grid.Row="1" x:Name="cFilesList" SelectionMode="Single" SelectionChanged="CFilesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"></ListBox>
+                <ListBox Grid.Row="1" x:Name="cFilesList" SelectionMode="Single" SelectionChanged="CFilesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" Foreground="White" Background="Black"></ListBox>
                 <GroupBox Grid.Row="2" Header="Settings">
                     <StackPanel>
                         <GroupBox Header="Container Format">
@@ -152,7 +152,7 @@
                                        Play="CMarkingsList_Play"
                                        Export="CMarkingsList_Export"
                                        SetBegin="CMarkingsList_SetBegin"
-                                       SetEnd="CMarkingsList_SetEnd"
+                                       SetEnd="CMarkingsList_SetEnd" Foreground="White"
                                        />
                     <StackPanel Grid.Row="4" Orientation="Horizontal">
                         <Button MinWidth="60" Margin="4,0" Padding="8,2" Click="BtnAddMarking_Click">Add</Button>
