@@ -39,7 +39,7 @@ namespace KCode.Videocutter
             FormatFileSizeTest("2 TB", 1024L.Pow(4) * 2);
         }
 
-        private void FormatFileSizeTest(string expected, long bytesCount)
+        private static void FormatFileSizeTest(string expected, long bytesCount)
         {
             Assert.Equal(expected, ClassExtensions.FormatFileSize(bytesCount));
         }
