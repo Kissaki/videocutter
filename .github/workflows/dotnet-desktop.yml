@@ -3,13 +3,15 @@ name: .NET Core Desktop
 on:
   push:
     branches: [ "master" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "master" ]
 
 jobs:
   build:
     runs-on: windows-latest
-
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -22,10 +24,12 @@ jobs:
     - name: dotnet test
       run: dotnet test src --property:Configuration=Release
     - name: publish
-      run: dotnet publish src\Videocutter --property:Configuration=Release --os win --arch x64 --output publish\Videocutter
+      run: dotnet publish src\Videocutter --property:Configuration=Release --os win --arch x64 --output publish
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: Upload Artifacts
-        path: publish/Videocutter
+        path: publish/**
         if-no-files-found: error
+    - name: Publish GitHub Release
+      if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+      run: hub release create --attach publish/Videocutter.exe --attach publish/Videocutter.pdb --message "${{ github.ref_name }}" "${{ github.ref_name }}"
