@@ -22,7 +22,7 @@ jobs:
     - name: dotnet test
       run: dotnet test src --property:Configuration=Release
     - name: publish
-      run: dotnet publish src\Videocutter --property:Configuration=Release --self-contained --os win --arch x64 --output publish\Videocutter
+      run: dotnet publish src\Videocutter --property:Configuration=Release --os win --arch x64 --output publish\Videocutter
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
