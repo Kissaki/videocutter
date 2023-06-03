@@ -1,0 +1,31 @@
+name: .NET Core Desktop
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: dotnet test
+      run: dotnet test src
+    - name: publish
+      run: dotnet publish src\Videocutter --property:Configuration=Release --self-contained --os win --arch x64 --output publish\Videocutter
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Upload Artifacts
+        path: publish/Videocutter
+        if-no-files-found: error
