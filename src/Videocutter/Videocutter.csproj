@@ -15,6 +15,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RepositoryUrl>https://github.com/Kissaki/videocutter</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
+	<PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
